@@ -11,9 +11,9 @@ inputs:
     required: false
     default: HEAD
   version:
-    description: npm version to install.
+    description: npm version to install. Pin this to the same version as the Action tag for reproducible runs.
     required: false
-    default: latest
+    default: "0.1.2"
   format:
     description: Output format, text, json, or sarif.
     required: false
@@ -31,7 +31,7 @@ runs:
   steps:
     - name: Install PatchBrake
       shell: bash
-      run: npm install -g "patchbrake@${{ inputs.version }}"
+      run: npm install -g "patchbrake@${{ inputs.version }}" --ignore-scripts
     - name: Run PatchBrake
       shell: bash
       run: |

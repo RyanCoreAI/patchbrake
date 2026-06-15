@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "description": "A local safety gate for AI-generated patches.",
   "license": "MIT",
-  "author": "",
+  "author": "PatchBrake contributors",
   "homepage": "https://github.com/RyanCoreAI/patchbrake#readme",
   "repository": {
     "type": "git",

@@ -4,6 +4,8 @@ PatchBrake ships a composite GitHub Action that installs the npm package and sca
 
 This action requires the `patchbrake` npm package to be published.
 
+Pin both the Action tag and the npm `version` input for reproducible runs.
+
 ```yaml
 name: PatchBrake
 on:
@@ -23,6 +25,7 @@ jobs:
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
+          version: "0.1.2"
           fail-on: error
 ```
 
@@ -46,11 +49,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: RyanCoreAI/patchbrake@v0.1.2
         with:
-          node-version: 20
-      - run: npm install -g patchbrake
-      - run: patchbrake scan --base origin/${{ github.base_ref }} --head HEAD --format sarif --output patchbrake.sarif --fail-on never
+          base: origin/${{ github.base_ref }}
+          head: HEAD
+          version: "0.1.2"
+          format: sarif
+          output: patchbrake.sarif
+          fail-on: never
       - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: patchbrake.sarif
@@ -59,6 +65,7 @@ jobs:
 ## Notes
 
 - Use `fetch-depth: 0` so the base and head refs are available.
+- Keep the Action tag and `version` input pinned together, for example `v0.1.2` and `"0.1.2"`.
 - Uploading SARIF requires `security-events: write`.
 - Keep permissions narrow. `contents: read` is enough for text output.
 - Fork PRs should avoid privileged workflows and secrets.

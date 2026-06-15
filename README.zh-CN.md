@@ -171,6 +171,7 @@ jobs:
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
+          version: "0.1.2"
           fail-on: error
 ```
 

@@ -2,6 +2,10 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+[![npm version](https://img.shields.io/npm/v/patchbrake.svg)](https://www.npmjs.com/package/patchbrake)
+[![CI](https://github.com/RyanCoreAI/patchbrake/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanCoreAI/patchbrake/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A local safety gate for AI-generated patches.
 
 AI coding tools move fast. PatchBrake checks the diff before you commit and flags the risky changes that are easy to miss in review:
@@ -189,6 +193,7 @@ jobs:
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
+          version: "0.1.2"
           fail-on: error
 ```
 
