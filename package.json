@@ -4,13 +4,31 @@
   "description": "A local safety gate for AI-generated patches.",
   "license": "MIT",
   "author": "",
+  "homepage": "https://github.com/RyanCoreAI/patchbrake#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RyanCoreAI/patchbrake.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RyanCoreAI/patchbrake/issues"
+  },
   "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "bin": {
     "patchbrake": "dist/cli.js"
   },
   "files": [
     "dist",
     "docs",
+    "benchmarks",
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
@@ -23,7 +41,8 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run build && npm run test",
+    "benchmark": "node dist/cli.js benchmark",
+    "check": "npm run build && npm run test && npm run benchmark",
     "prepack": "npm run build"
   },
   "keywords": [

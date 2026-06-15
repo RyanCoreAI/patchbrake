@@ -7,6 +7,8 @@ import { getGitVersion, isInsideGitRepo } from "./git";
 import { builtinRules } from "./rules";
 import { runScan } from "./commands/scan";
 import type { OutputFormat } from "./types";
+import { writeBaseline } from "./baseline";
+import { runBenchmark } from "./commands/benchmark";
 
 const program = new Command();
 
@@ -56,6 +58,57 @@ program
 
     fs.writeFileSync(configPath, `${JSON.stringify(createDefaultConfig(), null, 2)}\n`, "utf8");
     process.stdout.write(`Created ${configPath}\n`);
+  });
+
+program
+  .command("baseline")
+  .description("Write a .patchbrake-baseline.json file from the current scan findings.")
+  .option("--staged", "scan staged changes")
+  .option("--base <ref>", "base git ref for range scanning")
+  .option("--head <ref>", "head git ref for range scanning")
+  .option("--config <path>", "path to .patchbrakerc.json")
+  .option("--cwd <path>", "working directory")
+  .option("--output <path>", "baseline output path", ".patchbrake-baseline.json")
+  .action((options) => {
+    try {
+      const cwd = path.resolve(options.cwd ?? process.cwd());
+      const { result } = runScan({
+        ...options,
+        cwd,
+        format: "json",
+        failOn: "never",
+        ignoreBaseline: true
+      });
+      const targetPath = writeBaseline(cwd, options.output, result.findings);
+      process.stdout.write(`Wrote ${result.findings.length} finding(s) to ${targetPath}\n`);
+    } catch (error) {
+      process.stderr.write(`PatchBrake error: ${(error as Error).message}\n`);
+      process.exitCode = 2;
+    }
+  });
+
+program
+  .command("benchmark")
+  .description("Run the public AI diff risk benchmark cases.")
+  .option("--cases <path>", "benchmark cases JSON path", "benchmarks/cases.json")
+  .option("--cwd <path>", "working directory")
+  .action((options) => {
+    try {
+      const cwd = path.resolve(options.cwd ?? process.cwd());
+      const result = runBenchmark(cwd, options.cases);
+      process.stdout.write(`PatchBrake benchmark: ${result.passed}/${result.total} passed.\n`);
+
+      for (const failure of result.failures) {
+        process.stdout.write(`FAIL ${failure.id}: ${failure.description}\n`);
+        process.stdout.write(`  expected: ${failure.expectedRuleIds.join(",") || "(none)"}\n`);
+        process.stdout.write(`  actual:   ${failure.actualRuleIds.join(",") || "(none)"}\n`);
+      }
+
+      process.exitCode = result.failed === 0 ? 0 : 1;
+    } catch (error) {
+      process.stderr.write(`PatchBrake error: ${(error as Error).message}\n`);
+      process.exitCode = 2;
+    }
   });
 
 program

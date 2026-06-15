@@ -11,17 +11,18 @@ node dist/cli.js doctor
 node dist/cli.js rules
 node dist/cli.js scan --staged --format json
 node dist/cli.js scan --staged --format sarif --output patchbrake.sarif
+npm run benchmark
 npm pack --dry-run
 ```
 
 ## Metadata gate
 
 - `package.json` version is correct.
-- `package.json` repository/homepage/bugs fields are added only after the real GitHub owner is known.
+- `package.json` repository/homepage/bugs fields point to `RyanCoreAI/patchbrake`.
 - `README.md` examples match implemented commands.
 - `CHANGELOG.md` has the release notes.
 - `action.yml` inputs match `docs/github-action.md`.
-- GitHub placeholders are replaced with the real owner/repo.
+- GitHub examples point to `RyanCoreAI/patchbrake`.
 
 ## Demo gate
 

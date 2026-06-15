@@ -1,6 +1,6 @@
 # GitHub Action
 
-PatchBrake ships a composite GitHub Action that installs the npm package and scans a PR diff. Replace `your-org` with the final GitHub owner after the public repository is created.
+PatchBrake ships a composite GitHub Action that installs the npm package and scans a PR diff.
 
 ```yaml
 name: PatchBrake
@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: your-org/patchbrake@v0.1.0
+      - uses: RyanCoreAI/patchbrake@v0.1.0
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
@@ -60,3 +60,4 @@ jobs:
 - Uploading SARIF requires `security-events: write`.
 - Keep permissions narrow. `contents: read` is enough for text output.
 - Fork PRs should avoid privileged workflows and secrets.
+- Use `--fail-on never` when uploading SARIF but not blocking PRs.

@@ -2,7 +2,7 @@
 
 This file tracks the execution plan as release gates. Each phase must end with verification before the next phase starts.
 
-## Phase 1: Local CLI MVP
+## Phase 1: Local CLI Core
 
 Status: complete
 
@@ -31,7 +31,7 @@ Deliverables:
 - `--base` / `--head` range scan
 - JSON reporter
 - `.patchbrakerc.json`
-- 5 built-in deterministic rules
+- 5 stable deterministic rules
 - fixtures and unit tests
 - GitHub Action
 - README and docs
@@ -43,13 +43,68 @@ Verification:
 - `node dist/cli.js scan --staged --format json`
 - `npm pack --dry-run`
 
-## Phase 3: Release Readiness
+## Phase 3: Trust And Adoption
+
+Status: complete locally
+
+Deliverables:
+
+- `.patchbrake-baseline.json` support
+- config ignore entries
+- inline ignore comments
+- suppressed findings in text, JSON, and SARIF
+- skipped file reporting
+- rule timing summary
+- hook, CI, and AI coding workflow docs
+- 30-case public benchmark
+
+Verification:
+
+- `npm run check`
+- `patchbrake benchmark`
+
+## Phase 4: Rule Precision Expansion
+
+Status: complete locally
+
+Deliverables:
+
+- beta `auth-regression`
+- beta `package-script-risk`
+- beta `dangerous-shell`
+- beta `dependency-risk`
+- benchmark coverage for bad and safe cases
+
+Verification:
+
+- `npm run check`
+- `patchbrake benchmark`
+
+## Phase 5: Extensibility Foundation
+
+Status: complete locally
+
+Deliverables:
+
+- custom local rule loading
+- exported rule/type API
+- built-in shareable configs
+- monorepo path overrides
+- stable contract and release policy docs
+
+Verification:
+
+- custom rule integration test
+- shareable config test
+- path override and skip tests
+
+## Phase 6: Release Readiness
 
 Status: blocked on external account actions
 
 Required external actions:
 
-- Replace `your-org` placeholders after the GitHub repo is created.
+- Push the local repository to `RyanCoreAI/patchbrake`.
 - Confirm final npm package name from the publishing account.
 - Record a real `assets/demo.gif` from the built CLI.
 - Publish GitHub release and npm package.

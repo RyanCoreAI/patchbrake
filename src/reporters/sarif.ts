@@ -14,6 +14,7 @@ export function formatSarifReport(result: ScanResult): string {
           tool: {
             driver: {
               name: "PatchBrake",
+              informationUri: "https://github.com/RyanCoreAI/patchbrake",
               rules: ruleIds.map((ruleId) => ({
                 id: ruleId,
                 name: ruleId,
@@ -33,7 +34,7 @@ export function formatSarifReport(result: ScanResult): string {
 }
 
 function toSarifResult(finding: Finding) {
-  return {
+  const result: Record<string, unknown> = {
     ruleId: finding.ruleId,
     level: toSarifLevel(finding.severity),
     message: {
@@ -60,6 +61,17 @@ function toSarifResult(finding: Finding) {
       excerpt: finding.excerpt
     }
   };
+
+  if (finding.suppressed) {
+    result.suppressions = [
+      {
+        kind: finding.suppressed.kind === "inline" ? "inSource" : "external",
+        justification: finding.suppressed.reason ?? finding.suppressed.kind
+      }
+    ];
+  }
+
+  return result;
 }
 
 function toSarifLevel(severity: Finding["severity"]): "note" | "warning" | "error" {

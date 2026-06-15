@@ -1,17 +1,24 @@
 import type { ScanResult } from "../types";
 
 export function formatJsonReport(result: ScanResult): string {
+  const activeFindings = result.findings.filter((finding) => !finding.suppressed);
+  const suppressedFindings = result.findings.filter((finding) => finding.suppressed);
+
   return JSON.stringify(
     {
       summary: {
         filesScanned: result.files.length,
+        filesSkipped: result.skippedFiles.length,
         rulesRun: result.rulesRun.length,
-        findings: result.findings.length,
-        errors: result.findings.filter((finding) => finding.severity === "error").length,
-        warnings: result.findings.filter((finding) => finding.severity === "warn").length,
-        infos: result.findings.filter((finding) => finding.severity === "info").length
+        findings: activeFindings.length,
+        suppressedFindings: suppressedFindings.length,
+        errors: activeFindings.filter((finding) => finding.severity === "error").length,
+        warnings: activeFindings.filter((finding) => finding.severity === "warn").length,
+        infos: activeFindings.filter((finding) => finding.severity === "info").length
       },
       rulesRun: result.rulesRun,
+      skippedFiles: result.skippedFiles,
+      ruleTimings: result.ruleTimings,
       findings: result.findings
     },
     null,

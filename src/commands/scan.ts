@@ -4,6 +4,7 @@ import { loadConfig } from "../config";
 import { parseDiff } from "../diff-parser";
 import { getRangeDiff, getStagedDiff, isInsideGitRepo } from "../git";
 import { builtinRules } from "../rules";
+import { loadCustomRules } from "../custom-rules";
 import { runRules, shouldFail } from "../rule-engine";
 import { formatJsonReport } from "../reporters/json";
 import { formatSarifReport } from "../reporters/sarif";
@@ -19,6 +20,7 @@ export interface ScanCommandOptions {
   config?: string;
   failOn?: "warn" | "error" | "never";
   cwd?: string;
+  ignoreBaseline?: boolean;
 }
 
 export function runScan(options: ScanCommandOptions): { result: ScanResult; output: string; exitCode: number } {
@@ -48,10 +50,11 @@ export function runScan(options: ScanCommandOptions): { result: ScanResult; outp
     format,
     output: options.output,
     failOn,
-    configPath: options.config
+    configPath: options.config,
+    ignoreBaseline: options.ignoreBaseline
   };
 
-  const result = runRules(files, builtinRules, config, scanOptions);
+  const result = runRules(files, [...builtinRules, ...loadCustomRules(cwd, config)], config, scanOptions);
   const output = formatReport(result, format);
   const exitCode = shouldFail(result.findings, failOn) ? 1 : 0;
 

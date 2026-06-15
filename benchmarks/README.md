@@ -1,15 +1,12 @@
 # PatchBrake benchmark fixtures
 
-This directory is reserved for the public AI diff risk benchmark.
+`cases.json` is the public AI diff risk benchmark used by `npm run benchmark` and `patchbrake benchmark`.
 
-The intended shape for each case is:
+Each case includes:
 
-```text
-case-001-secret-openai-key/
-  bad.diff
-  safe.diff
-  expected-findings.json
-  explanation.md
-```
+- `id`
+- `description`
+- unified `diff`
+- expected rule ids
 
-The benchmark should grow from real false-positive and false-negative reports. Keep fixtures anonymized and deterministic.
+Keep benchmark cases anonymized, deterministic, and paired with a false-positive or false-negative reason when possible.

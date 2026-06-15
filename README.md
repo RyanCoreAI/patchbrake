@@ -56,6 +56,18 @@ Create a config file:
 patchbrake init
 ```
 
+Create a baseline for accepted existing findings:
+
+```bash
+patchbrake baseline --staged
+```
+
+Run the public benchmark:
+
+```bash
+npm run benchmark
+```
+
 ## Example Output
 
 ```text
@@ -80,13 +92,17 @@ WARN workflow-permissions .github/workflows/release.yml:8
 
 ## Rules
 
-| Rule | Default | What it catches |
+| Rule | Default | Maturity | What it catches |
 |---|---:|---|
-| `secret-leak` | error | New API keys, private keys, tokens, or env secrets |
-| `deleted-tests` | error | Deleted test files or removed test/assertion lines |
-| `workflow-permissions` | warn | `write-all`, write scopes, and `pull_request_target` in GitHub Actions |
-| `migration-risk` | warn | `DROP`, `TRUNCATE`, unsafe `DELETE`, and destructive migration statements |
-| `prompt-config-drift` | warn | Changes to `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, prompts, and policy files |
+| `secret-leak` | error | stable | New API keys, private keys, tokens, or env secrets |
+| `deleted-tests` | error | stable | Deleted test files or removed test/assertion lines |
+| `workflow-permissions` | warn | stable | `write-all`, write scopes, and `pull_request_target` in GitHub Actions |
+| `migration-risk` | warn | stable | `DROP`, `TRUNCATE`, unsafe `DELETE`, and destructive migration statements |
+| `prompt-config-drift` | warn | stable | Changes to `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, prompts, and policy files |
+| `auth-regression` | warn | beta | Removed auth, role, session, JWT, or route guard checks |
+| `package-script-risk` | warn | beta | Risky npm lifecycle or shell-heavy scripts |
+| `dangerous-shell` | warn | beta | Pipe-to-shell and destructive shell commands |
+| `dependency-risk` | warn | beta | `latest`, wildcard, URL, git, file, and link dependencies |
 
 List rules:
 
@@ -110,7 +126,11 @@ PatchBrake reads `.patchbrakerc.json` or `patchbrake.config.json` in the current
     "deleted-tests": "error",
     "workflow-permissions": "warn",
     "migration-risk": "warn",
-    "prompt-config-drift": "warn"
+    "prompt-config-drift": "warn",
+    "auth-regression": "warn",
+    "package-script-risk": "warn",
+    "dangerous-shell": "warn",
+    "dependency-risk": "warn"
   }
 }
 ```
@@ -127,7 +147,7 @@ Disable a noisy rule:
 
 ## GitHub Action
 
-Use the composite action after this repository is published. Replace `your-org` with the final GitHub owner:
+Use the composite action in pull requests:
 
 ```yaml
 name: PatchBrake
@@ -144,7 +164,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: your-org/patchbrake@v0.1.0
+      - uses: RyanCoreAI/patchbrake@v0.1.0
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
@@ -174,11 +194,24 @@ node dist/cli.js scan --staged
 
 Release gates are tracked in [docs/implementation-status.md](docs/implementation-status.md) and [docs/release-checklist.md](docs/release-checklist.md).
 
+More docs:
+
+- [Rule reference](docs/rule-reference.md)
+- [Baseline and ignore](docs/baseline-ignore.md)
+- [Git hooks](docs/hooks.md)
+- [CI recipes](docs/ci-recipes.md)
+- [AI coding workflows](docs/ai-coding-workflows.md)
+- [Custom rules](docs/custom-rules.md)
+- [Stable contract](docs/stable-contract.md)
+- [Release policy](docs/release-policy.md)
+
 ## Roadmap
 
-- v0.1: deterministic CLI, JSON output, config, GitHub Action, 5 rules.
-- v0.2: baseline/ignore support, pre-commit hook docs, richer rule packs.
-- v0.3: beta auth-regression and package-script-risk rules.
+- v0.1: deterministic CLI, JSON/SARIF output, config, GitHub Action, stable starter rules. Implemented locally.
+- v0.2: baseline/ignore, hooks, benchmark, CI recipes. Implemented locally.
+- v0.3: beta auth/package/shell/dependency rules. Implemented locally.
+- v0.5: custom rule SDK and shareable configs. Implemented locally.
+- v1.0: stable CLI/config/output/rule contracts. Contract documented; final release requires public GitHub/npm publishing and real-world feedback.
 
 ## Contributing
 

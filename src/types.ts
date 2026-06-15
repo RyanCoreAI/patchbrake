@@ -6,6 +6,10 @@ export type Category =
   | "workflow"
   | "migration"
   | "prompt-config"
+  | "auth"
+  | "package"
+  | "shell"
+  | "dependency"
   | "unknown";
 
 export type DiffLineType = "add" | "remove" | "context";
@@ -42,6 +46,7 @@ export interface RuleMeta {
   defaultSeverity: Severity;
   description: string;
   remediation: string;
+  maturity?: "stable" | "beta";
 }
 
 export interface Rule {
@@ -71,6 +76,20 @@ export interface Finding extends FindingDraft {
   id: string;
   fingerprint: string;
   severity: Exclude<Severity, "off">;
+  suppressed?: Suppression;
+}
+
+export interface Suppression {
+  kind: "baseline" | "config" | "inline";
+  reason?: string;
+}
+
+export interface IgnoreEntry {
+  fingerprint?: string;
+  ruleId?: string;
+  filePath?: string;
+  line?: number;
+  reason?: string;
 }
 
 export interface RuleConfigObject {
@@ -83,22 +102,43 @@ export interface RuleConfigObject {
 export type RuleConfigValue = Severity | RuleConfigObject;
 
 export interface Config {
+  extends?: string[];
   rules?: Record<string, RuleConfigValue>;
   include?: string[];
   exclude?: string[];
+  ignore?: Array<string | IgnoreEntry>;
+  baseline?: string;
+  customRules?: string[];
+  overrides?: ConfigOverride[];
   maxFileSizeBytes?: number;
   failOn?: "warn" | "error" | "never";
   outputFormat?: OutputFormat;
+  reportTimings?: boolean;
 }
 
 export interface ResolvedConfig {
+  extends: string[];
   rules: Record<string, RuleConfigValue>;
   include: string[];
   exclude: string[];
+  ignore: Array<string | IgnoreEntry>;
+  baseline?: string;
+  baselinePath?: string;
+  baselineFingerprints: Set<string>;
+  customRules: string[];
+  overrides: ConfigOverride[];
   maxFileSizeBytes: number;
   failOn: "warn" | "error" | "never";
   outputFormat: OutputFormat;
+  reportTimings: boolean;
   configPath?: string;
+}
+
+export interface ConfigOverride {
+  files: string[];
+  rules?: Record<string, RuleConfigValue>;
+  ignore?: Array<string | IgnoreEntry>;
+  exclude?: string[];
 }
 
 export interface ScanOptions {
@@ -110,12 +150,38 @@ export interface ScanOptions {
   output?: string;
   failOn: "warn" | "error" | "never";
   configPath?: string;
+  ignoreBaseline?: boolean;
 }
 
 export interface ScanResult {
   files: DiffFile[];
   findings: Finding[];
   rulesRun: string[];
+  skippedFiles: SkippedFile[];
+  ruleTimings: RuleTiming[];
 }
 
 export type OutputFormat = "text" | "json" | "sarif";
+
+export interface SkippedFile {
+  filePath: string;
+  reason: "excluded" | "too-large";
+  detail?: string;
+}
+
+export interface RuleTiming {
+  ruleId: string;
+  durationMs: number;
+}
+
+export interface BaselineFile {
+  version: 1;
+  generatedAt: string;
+  findings: Array<{
+    fingerprint: string;
+    ruleId: string;
+    filePath: string;
+    message: string;
+    reason?: string;
+  }>;
+}

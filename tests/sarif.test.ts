@@ -23,6 +23,6 @@ describe("SARIF reporter", () => {
     expect(sarif.version).toBe("2.1.0");
     expect(sarif.runs[0].tool.driver.name).toBe("PatchBrake");
     expect(sarif.runs[0].results[0].ruleId).toBe("secret-leak");
-    expect(sarif.runs[0].results[0].partialFingerprints.patchbrakeFingerprint).toContain("secret-leak");
+    expect(sarif.runs[0].results[0].partialFingerprints.patchbrakeFingerprint).toMatch(/^[a-f0-9]{24}$/);
   });
 });
