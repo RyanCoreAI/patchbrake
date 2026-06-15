@@ -11,29 +11,18 @@ AI coding tools move fast. PatchBrake checks the diff before you commit and flag
 - prompt and agent config drift
 
 ```bash
-patchbrake scan --staged
+npx patchbrake scan --staged
 ```
 
 No LLM. No dashboard. No code upload. Just scan the diff before it ships.
 
 ## Quickstart
 
-The GitHub repository is public, but the npm package is not published yet. Until the npm release is complete, install from source:
+Run PatchBrake before committing AI-generated changes:
 
 ```bash
-git clone https://github.com/RyanCoreAI/patchbrake.git
-cd patchbrake
-npm ci
-npm run build
-npm link
-```
-
-Then run PatchBrake before committing AI-generated changes in another repository:
-
-```bash
-cd path/to/your/repo
 git add .
-patchbrake scan --staged
+npx patchbrake scan --staged
 ```
 
 If PatchBrake finds an error, fix the diff before committing:
@@ -42,13 +31,24 @@ If PatchBrake finds an error, fix the diff before committing:
 git commit -m "feat: ..."
 ```
 
+Pin a version if needed:
+
+```bash
+npx patchbrake@0.1.2 scan --staged
+```
+
+Optional global install:
+
+```bash
+npm install -g patchbrake
+patchbrake scan --staged
+```
+
 Optional setup:
 
 ```bash
-patchbrake init
+npx patchbrake init
 ```
-
-After the npm release, the normal install-free path will be `npx patchbrake scan --staged`.
 
 Scan a commit range:
 
@@ -164,7 +164,7 @@ Disable a noisy rule:
 
 ## GitHub Action
 
-Use the composite action in pull requests after the npm package is published:
+Use the composite action in pull requests:
 
 ```yaml
 name: PatchBrake
