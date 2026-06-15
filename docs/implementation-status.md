@@ -106,7 +106,7 @@ Required external actions:
 
 - Push repository to `RyanCoreAI/patchbrake`: complete.
 - Publish npm package `patchbrake`: complete.
-- Publish GitHub release/tag `v0.1.2`: complete.
+- Publish GitHub release/tag `v0.1.3`: complete.
 - Record a real `assets/demo.gif` from the built CLI: complete.
 
 Verification after external actions:

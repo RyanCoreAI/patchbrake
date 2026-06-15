@@ -1,8 +1,17 @@
 # Changelog
 
+## 0.1.3
+
+- Hardened the GitHub Action install path by pinning the default npm package version and installing with `--ignore-scripts`.
+- Documented pinned Action tag and npm `version` input usage for reproducible CI runs.
+- Added README npm, CI, and license badges.
+- Added package author metadata.
+- Updated CI recipes to use pinned `npx patchbrake@0.1.3` examples.
+
 ## 0.1.2
 
 - Fixed CLI `--version` output to match the published package version.
+
 ## 0.1.1
 
 - Hardened `secret-leak` redaction for bare OpenAI keys, GitHub tokens, GitHub fine-grained tokens, AWS access keys, private key headers, and assignment-style secrets.

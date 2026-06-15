@@ -85,6 +85,7 @@ deleted file mode 100644
     const changelog = fs.readFileSync(path.join(process.cwd(), "CHANGELOG.md"), "utf8");
     const implementationStatus = fs.readFileSync(path.join(process.cwd(), "docs/implementation-status.md"), "utf8");
     const action = fs.readFileSync(path.join(process.cwd(), "action.yml"), "utf8");
+    const cliSource = fs.readFileSync(path.join(process.cwd(), "src/cli.ts"), "utf8");
     const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8")) as { author?: string };
 
     expect(readme).not.toContain("Implemented locally");
@@ -93,9 +94,9 @@ deleted file mode 100644
     expect(readme).toContain("[简体中文](README.zh-CN.md)");
     expect(readme).toContain("npx patchbrake scan --staged");
     expect(readme).toContain("![PatchBrake demo](assets/demo.gif)");
-    expect(readme).toContain("RyanCoreAI/patchbrake@v0.1.2");
+    expect(readme).toContain("RyanCoreAI/patchbrake@v0.1.3");
     expect(readme).toContain("img.shields.io/npm/v/patchbrake.svg");
-    expect(readme).toContain("version: \"0.1.2\"");
+    expect(readme).toContain("version: \"0.1.3\"");
     expect(implementationStatus).not.toContain("blocked on push");
     expect(implementationStatus).toContain("complete for the current public release");
     expect(changelog).toContain("SARIF");
@@ -103,9 +104,11 @@ deleted file mode 100644
     expect(changelog).toContain("benchmark");
     expect(changelog).toContain("beta rules");
     expect(action).toContain("text, json, or sarif");
-    expect(action).toContain('default: "0.1.2"');
+    expect(action).toContain('default: "0.1.3"');
     expect(action).not.toContain("default: latest");
     expect(action).toContain("--ignore-scripts");
+    expect(cliSource).toContain("readPackageVersion()");
+    expect(cliSource).not.toMatch(/\.version\("0\./);
     expect(packageJson.author).toBe("PatchBrake contributors");
   });
 });

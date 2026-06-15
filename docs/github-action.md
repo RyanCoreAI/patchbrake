@@ -21,11 +21,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: RyanCoreAI/patchbrake@v0.1.2
+      - uses: RyanCoreAI/patchbrake@v0.1.3
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
-          version: "0.1.2"
+          version: "0.1.3"
           fail-on: error
 ```
 
@@ -49,11 +49,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: RyanCoreAI/patchbrake@v0.1.2
+      - uses: RyanCoreAI/patchbrake@v0.1.3
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
-          version: "0.1.2"
+          version: "0.1.3"
           format: sarif
           output: patchbrake.sarif
           fail-on: never
@@ -65,7 +65,7 @@ jobs:
 ## Notes
 
 - Use `fetch-depth: 0` so the base and head refs are available.
-- Keep the Action tag and `version` input pinned together, for example `v0.1.2` and `"0.1.2"`.
+- Keep the Action tag and `version` input pinned together, for example `v0.1.3` and `"0.1.3"`.
 - Uploading SARIF requires `security-events: write`.
 - Keep permissions narrow. `contents: read` is enough for text output.
 - Fork PRs should avoid privileged workflows and secrets.

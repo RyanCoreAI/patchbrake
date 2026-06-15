@@ -11,11 +11,12 @@ import { writeBaseline } from "./baseline";
 import { runBenchmark } from "./commands/benchmark";
 
 const program = new Command();
+const programVersion = readPackageVersion();
 
 program
   .name("patchbrake")
   .description("A local safety gate for AI-generated patches.")
-  .version("0.1.2");
+  .version(programVersion);
 
 program
   .command("scan")
@@ -171,4 +172,10 @@ function parseFailOn(value: string): "warn" | "error" | "never" {
     throw new Error("fail-on must be warn, error, or never");
   }
   return value;
+}
+
+function readPackageVersion(): string {
+  const packageJsonPath = path.resolve(__dirname, "..", "package.json");
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as { version?: string };
+  return packageJson.version ?? "0.0.0";
 }

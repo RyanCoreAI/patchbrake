@@ -42,7 +42,7 @@ git commit -m "feat: ..."
 Pin a version if needed:
 
 ```bash
-npx patchbrake@0.1.2 scan --staged
+npx patchbrake@0.1.3 scan --staged
 ```
 
 Optional global install:
@@ -189,11 +189,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: RyanCoreAI/patchbrake@v0.1.2
+      - uses: RyanCoreAI/patchbrake@v0.1.3
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
-          version: "0.1.2"
+          version: "0.1.3"
           fail-on: error
 ```
 
