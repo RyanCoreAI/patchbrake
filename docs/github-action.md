@@ -2,6 +2,8 @@
 
 PatchBrake ships a composite GitHub Action that installs the npm package and scans a PR diff.
 
+This action requires the `patchbrake` npm package to be published.
+
 ```yaml
 name: PatchBrake
 on:

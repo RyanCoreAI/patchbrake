@@ -1,5 +1,5 @@
-import type { Rule } from "../types";
-import { getFilePath, getRemovedLines } from "../diff-parser";
+import type { DiffFile, Rule } from "../types";
+import { getAddedLines, getFilePath, getRemovedLines } from "../diff-parser";
 import { isProbablyTestPath } from "../path-utils";
 
 const TEST_CALL_RE = /\b(?:describe|it|test|expect)\s*\(/;
@@ -18,6 +18,7 @@ export const deletedTestsRule: Rule = {
     for (const file of context.files) {
       const filePath = getFilePath(file);
       const removedLines = getRemovedLines(file);
+      const hasReplacementCoverage = diffAddsTestCoverage(context.files, file);
 
       if (file.status === "deleted" && isProbablyTestPath(filePath)) {
         findings.push({
@@ -43,15 +44,32 @@ export const deletedTestsRule: Rule = {
       findings.push({
         ruleId: "deleted-tests",
         category: "tests" as const,
-        severity: "error" as const,
+        severity: hasReplacementCoverage ? ("info" as const) : ("warn" as const),
         message: `${removedTestCalls.length} test case or assertion line(s) removed.`,
         filePath,
         line: removedTestCalls[0]?.oldLineNumber,
         excerpt: removedTestCalls[0]?.content.trim(),
-        remediation: "Confirm the deleted coverage is replaced or intentionally obsolete."
+        remediation: hasReplacementCoverage
+          ? "Confirm the replacement test covers the removed behavior."
+          : "Confirm the deleted coverage is replaced or intentionally obsolete."
       });
     }
 
     return findings;
   }
 };
+
+function diffAddsTestCoverage(files: DiffFile[], sourceFile: DiffFile): boolean {
+  return files.some((file) => {
+    const filePath = getFilePath(file);
+    if (!isProbablyTestPath(filePath)) {
+      return false;
+    }
+
+    if (file === sourceFile) {
+      return getAddedLines(file).some((line) => TEST_CALL_RE.test(line.content));
+    }
+
+    return file.status === "added" || getAddedLines(file).some((line) => TEST_CALL_RE.test(line.content));
+  });
+}

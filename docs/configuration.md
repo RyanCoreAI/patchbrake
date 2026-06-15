@@ -24,7 +24,6 @@ patchbrake init
   "overrides": [],
   "rules": {
     "secret-leak": "error",
-    "deleted-tests": "error",
     "workflow-permissions": "warn",
     "migration-risk": "warn",
     "prompt-config-drift": "warn",

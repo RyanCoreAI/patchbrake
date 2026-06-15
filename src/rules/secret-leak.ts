@@ -68,5 +68,11 @@ function isLikelyPlaceholder(content: string): boolean {
 }
 
 function redact(content: string): string {
-  return content.replace(/([:=]\s*["']?)([^"'\s#]{6})[^"'\s#]+/g, "$1$2...");
+  return content
+    .replace(/\bsk-[A-Za-z0-9_-]{8,}/g, "sk-...redacted")
+    .replace(/\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{8,}/g, "gh...redacted")
+    .replace(/\bgithub_pat_[A-Za-z0-9_]{8,}/g, "github_pat_...redacted")
+    .replace(/\bAKIA[0-9A-Z]{16}\b/g, "AKIA...redacted")
+    .replace(/-----BEGIN (?:RSA |EC |OPENSSH |DSA |)?PRIVATE KEY-----/gi, "-----BEGIN ... REDACTED PRIVATE KEY-----")
+    .replace(/([:=]\s*["']?)(?![^"'\s#]*redacted)([^"'\s#]{6})[^"'\s#]+/g, "$1$2...");
 }

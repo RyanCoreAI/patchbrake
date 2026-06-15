@@ -8,7 +8,7 @@ Flags likely secrets added in a diff, including private keys, GitHub tokens, Ope
 
 ### `deleted-tests`
 
-Flags deleted test files and removed `describe`, `it`, `test`, or `expect` lines.
+Flags deleted test files and removed `describe`, `it`, `test`, or `expect` lines. Deleting an entire test file is `error`; removing test calls is `warn`; removing test calls while adding replacement coverage in the same diff is `info`.
 
 ### `workflow-permissions`
 

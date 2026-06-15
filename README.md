@@ -11,26 +11,44 @@ AI coding tools move fast. PatchBrake checks the diff before you commit and flag
 - prompt and agent config drift
 
 ```bash
-npx patchbrake scan --staged
+patchbrake scan --staged
 ```
 
 No LLM. No dashboard. No code upload. Just scan the diff before it ships.
 
 ## Quickstart
 
-```bash
-# install from npm after release
-npm install -g patchbrake
+The GitHub repository is public, but the npm package is not published yet. Until the npm release is complete, install from source:
 
-# or run directly
-npx patchbrake scan --staged
+```bash
+git clone https://github.com/RyanCoreAI/patchbrake.git
+cd patchbrake
+npm ci
+npm run build
+npm link
 ```
 
-Scan staged changes:
+Then run PatchBrake before committing AI-generated changes in another repository:
 
 ```bash
+cd path/to/your/repo
+git add .
 patchbrake scan --staged
 ```
+
+If PatchBrake finds an error, fix the diff before committing:
+
+```bash
+git commit -m "feat: ..."
+```
+
+Optional setup:
+
+```bash
+patchbrake init
+```
+
+After the npm release, the normal install-free path will be `npx patchbrake scan --staged`.
 
 Scan a commit range:
 
@@ -95,7 +113,7 @@ WARN workflow-permissions .github/workflows/release.yml:8
 | Rule | Default | Maturity | What it catches |
 |---|---:|---|
 | `secret-leak` | error | stable | New API keys, private keys, tokens, or env secrets |
-| `deleted-tests` | error | stable | Deleted test files or removed test/assertion lines |
+| `deleted-tests` | mixed | stable | Deleted test files or removed test/assertion lines |
 | `workflow-permissions` | warn | stable | `write-all`, write scopes, and `pull_request_target` in GitHub Actions |
 | `migration-risk` | warn | stable | `DROP`, `TRUNCATE`, unsafe `DELETE`, and destructive migration statements |
 | `prompt-config-drift` | warn | stable | Changes to `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, prompts, and policy files |
@@ -123,7 +141,6 @@ PatchBrake reads `.patchbrakerc.json` or `patchbrake.config.json` in the current
   "exclude": ["node_modules/**", "dist/**", "coverage/**", ".git/**"],
   "rules": {
     "secret-leak": "error",
-    "deleted-tests": "error",
     "workflow-permissions": "warn",
     "migration-risk": "warn",
     "prompt-config-drift": "warn",
@@ -147,7 +164,7 @@ Disable a noisy rule:
 
 ## GitHub Action
 
-Use the composite action in pull requests:
+Use the composite action in pull requests after the npm package is published:
 
 ```yaml
 name: PatchBrake
@@ -207,11 +224,11 @@ More docs:
 
 ## Roadmap
 
-- v0.1: deterministic CLI, JSON/SARIF output, config, GitHub Action, stable starter rules. Implemented locally.
-- v0.2: baseline/ignore, hooks, benchmark, CI recipes. Implemented locally.
-- v0.3: beta auth/package/shell/dependency rules. Implemented locally.
-- v0.5: custom rule SDK and shareable configs. Implemented locally.
-- v1.0: stable CLI/config/output/rule contracts. Contract documented; final release requires public GitHub/npm publishing and real-world feedback.
+- v0.1: CLI scanner, JSON/SARIF output, config, GitHub Action, starter rules.
+- v0.2: baseline/ignore, hooks, benchmark, CI recipes.
+- v0.3: beta auth/package/shell/dependency rules.
+- v0.5: custom rule SDK and shareable configs.
+- v1.0: stable CLI/config/output/rule contracts after real-world feedback.
 
 ## Contributing
 

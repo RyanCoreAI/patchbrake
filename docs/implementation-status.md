@@ -100,14 +100,16 @@ Verification:
 
 ## Phase 6: Release Readiness
 
-Status: blocked on external account actions
+Status: partially complete
 
 Required external actions:
 
-- Push the local repository to `RyanCoreAI/patchbrake`.
-- Confirm final npm package name from the publishing account.
-- Record a real `assets/demo.gif` from the built CLI.
-- Publish GitHub release and npm package.
+- Push repository to `RyanCoreAI/patchbrake`: complete.
+- Publish final `v0.1.0` tag from the release commit: pending.
+- Confirm npm package name from the publishing account: pending.
+- Publish npm package: pending.
+- Publish GitHub Release: pending.
+- Record a real `assets/demo.gif` from the built CLI: pending.
 
 Verification after external actions:
 

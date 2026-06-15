@@ -57,7 +57,6 @@ export function createDefaultConfig(): Config {
     ignore: [],
     rules: {
       "secret-leak": "error",
-      "deleted-tests": "error",
       "workflow-permissions": "warn",
       "migration-risk": "warn",
       "prompt-config-drift": "warn",
