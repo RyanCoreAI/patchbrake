@@ -1,5 +1,7 @@
 # PatchBrake
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 A local safety gate for AI-generated patches.
 
 AI coding tools move fast. PatchBrake checks the diff before you commit and flags the risky changes that are easy to miss in review:
