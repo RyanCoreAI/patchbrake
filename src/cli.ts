@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name("patchbrake")
   .description("A local safety gate for AI-generated patches.")
-  .version("0.1.0");
+  .version("0.1.2");
 
 program
   .command("scan")
