@@ -34,8 +34,9 @@ npm pack --dry-run
 
 ```bash
 npm publish --access public
-git tag v0.1.0
-git push origin main --tags
+git tag -a v<version> -m "v<version>"
+git push origin main
+git push origin v<version>
 ```
 
 Do not publish until the repo name, npm name, and demo are final.

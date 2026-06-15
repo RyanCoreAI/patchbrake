@@ -126,6 +126,11 @@ npx patchbrake scan --base origin/main --head HEAD --format sarif --output patch
 npx patchbrake init
 ```
 
+## 进一步了解
+
+- [Demo case](docs/demo-case.md)：一个可复现的 secret、删测试、Actions 权限放大示例。
+- [Comparison](docs/comparison.md)：PatchBrake 和 AI PR reviewer、secret scanner、SAST 的区别。
+
 ## 配置方式
 
 PatchBrake 会读取当前目录下的 `.patchbrakerc.json` 或 `patchbrake.config.json`。
@@ -185,4 +190,3 @@ jobs:
 3. 希望新增的规则。
 
 可以直接在 GitHub 提 issue，或者带着最小复现 diff 说明你期望 PatchBrake 如何判断。
-

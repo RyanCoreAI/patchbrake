@@ -100,16 +100,14 @@ Verification:
 
 ## Phase 6: Release Readiness
 
-Status: partially complete
+Status: complete for the current public release
 
 Required external actions:
 
 - Push repository to `RyanCoreAI/patchbrake`: complete.
-- Publish final `v0.1.0` tag from the release commit: pending.
-- Confirm npm package name from the publishing account: pending.
-- Publish npm package: pending.
-- Publish GitHub Release: pending.
-- Record a real `assets/demo.gif` from the built CLI: pending.
+- Publish npm package `patchbrake`: complete.
+- Publish GitHub release/tag `v0.1.2`: complete.
+- Record a real `assets/demo.gif` from the built CLI: complete.
 
 Verification after external actions:
 

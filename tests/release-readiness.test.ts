@@ -87,10 +87,14 @@ deleted file mode 100644
     const action = fs.readFileSync(path.join(process.cwd(), "action.yml"), "utf8");
 
     expect(readme).not.toContain("Implemented locally");
-    expect(readme).toContain("npm package is not published yet");
-    expect(readme).toContain("npm link");
+    expect(readme).not.toContain("npm package is not published yet");
+    expect(readme).not.toContain("npm link");
+    expect(readme).toContain("[简体中文](README.zh-CN.md)");
+    expect(readme).toContain("npx patchbrake scan --staged");
+    expect(readme).toContain("![PatchBrake demo](assets/demo.gif)");
+    expect(readme).toContain("RyanCoreAI/patchbrake@v0.1.2");
     expect(implementationStatus).not.toContain("blocked on push");
-    expect(implementationStatus).toContain("release commit: pending");
+    expect(implementationStatus).toContain("complete for the current public release");
     expect(changelog).toContain("SARIF");
     expect(changelog).toContain("baseline");
     expect(changelog).toContain("benchmark");

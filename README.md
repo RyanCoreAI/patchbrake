@@ -218,6 +218,8 @@ Release gates are tracked in [docs/implementation-status.md](docs/implementation
 More docs:
 
 - [Rule reference](docs/rule-reference.md)
+- [Demo case](docs/demo-case.md)
+- [Comparison](docs/comparison.md)
 - [Baseline and ignore](docs/baseline-ignore.md)
 - [Git hooks](docs/hooks.md)
 - [CI recipes](docs/ci-recipes.md)
