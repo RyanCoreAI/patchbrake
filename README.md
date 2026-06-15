@@ -14,6 +14,8 @@ AI coding tools move fast. PatchBrake checks the diff before you commit and flag
 npx patchbrake scan --staged
 ```
 
+![PatchBrake demo](assets/demo.gif)
+
 No LLM. No dashboard. No code upload. Just scan the diff before it ships.
 
 ## Quickstart
@@ -53,31 +55,31 @@ npx patchbrake init
 Scan a commit range:
 
 ```bash
-patchbrake scan --base origin/main --head HEAD
+npx patchbrake scan --base origin/main --head HEAD
 ```
 
 Write JSON for CI or scripts:
 
 ```bash
-patchbrake scan --staged --format json --output patchbrake-report.json
+npx patchbrake scan --staged --format json --output patchbrake-report.json
 ```
 
 Write SARIF for GitHub code scanning:
 
 ```bash
-patchbrake scan --base origin/main --head HEAD --format sarif --output patchbrake.sarif
+npx patchbrake scan --base origin/main --head HEAD --format sarif --output patchbrake.sarif
 ```
 
 Create a config file:
 
 ```bash
-patchbrake init
+npx patchbrake init
 ```
 
 Create a baseline for accepted existing findings:
 
 ```bash
-patchbrake baseline --staged
+npx patchbrake baseline --staged
 ```
 
 Run the public benchmark:
@@ -125,8 +127,8 @@ WARN workflow-permissions .github/workflows/release.yml:8
 List rules:
 
 ```bash
-patchbrake rules
-patchbrake explain secret-leak
+npx patchbrake rules
+npx patchbrake explain secret-leak
 ```
 
 ## Configuration
