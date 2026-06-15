@@ -14,8 +14,8 @@ PatchBrake is a local safety gate for AI-generated patches.
 
 ### Try it
 
-```bash
-npx patchbrake@0.1.3 scan --staged
-Scope
+`npx patchbrake@0.1.3 scan --staged`
+
+### Scope
 
 No LLM. No dashboard. No code upload. Just scan the diff before you commit.
