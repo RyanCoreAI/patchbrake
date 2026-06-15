@@ -1,6 +1,6 @@
 {
   "name": "patchbrake",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A local safety gate for AI-generated patches.",
   "license": "MIT",
   "author": "",
