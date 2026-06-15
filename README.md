@@ -6,15 +6,12 @@
 [![CI](https://github.com/RyanCoreAI/patchbrake/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanCoreAI/patchbrake/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A local safety gate for AI-generated patches.
+**A local safety gate for AI-generated code changes.**
 
-AI coding tools move fast. PatchBrake checks the diff before you commit and flags the risky changes that are easy to miss in review:
+AI coding tools can edit fast, but risky diffs are easy to miss before commit:
+deleted tests, leaked secrets, widened CI permissions, destructive migrations, and prompt/config drift.
 
-- leaked secrets
-- deleted tests
-- risky GitHub Actions permissions
-- destructive migrations
-- prompt and agent config drift
+PatchBrake scans your Git diff locally before it ships.
 
 ```bash
 npx patchbrake scan --staged
@@ -22,7 +19,25 @@ npx patchbrake scan --staged
 
 ![PatchBrake demo](assets/demo.gif)
 
-No LLM. No dashboard. No code upload. Just scan the diff before it ships.
+No LLM. No dashboard. No code upload. Just explainable local diff checks.
+
+## What It Catches
+
+| Risk | Example |
+|---|---|
+| Secret leaks | API keys or tokens added to config or code |
+| Deleted tests | Test files, test calls, or assertions removed |
+| CI permission drift | GitHub Actions permissions widened |
+| Destructive migrations | Risky schema or data changes |
+| Agent config drift | Prompts, rules, or agent instructions changed |
+
+## Why Use PatchBrake
+
+- Runs locally on your Git diff
+- Works before commit or in CI
+- Produces explainable findings
+- Supports JSON and SARIF output
+- Designed for AI-generated patches, not generic linting
 
 ## Quickstart
 
