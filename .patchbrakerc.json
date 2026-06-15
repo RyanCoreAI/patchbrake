@@ -1,0 +1,20 @@
+{
+  "failOn": "error",
+  "outputFormat": "text",
+  "include": ["**"],
+  "exclude": [
+    "node_modules/**",
+    "dist/**",
+    "coverage/**",
+    ".git/**",
+    "fixtures/**",
+    "benchmarks/**"
+  ],
+  "rules": {
+    "secret-leak": "error",
+    "deleted-tests": "error",
+    "workflow-permissions": "warn",
+    "migration-risk": "warn",
+    "prompt-config-drift": "warn"
+  }
+}

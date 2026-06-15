@@ -1,0 +1,19 @@
+# False Positives
+
+PatchBrake should stay useful by keeping false positives easy to report and fast to fix.
+
+## Report format
+
+Include:
+
+- rule id
+- anonymized diff
+- why the change is safe
+- expected behavior
+- actual finding
+
+## Maintainer policy
+
+- Add a safe fixture before relaxing a rule.
+- Prefer a narrower pattern over a suppression list.
+- Keep high-risk broad rules at `warn` until precision is proven.

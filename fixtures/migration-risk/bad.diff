@@ -1,0 +1,8 @@
+diff --git a/prisma/migrations/20260615010101_drop_sessions/migration.sql b/prisma/migrations/20260615010101_drop_sessions/migration.sql
+new file mode 100644
+index 0000000..2222222
+--- /dev/null
++++ b/prisma/migrations/20260615010101_drop_sessions/migration.sql
+@@ -0,0 +1,2 @@
++DROP TABLE sessions;
++DELETE FROM users;

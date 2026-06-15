@@ -1,0 +1,10 @@
+diff --git a/tests/auth.test.ts b/tests/auth.test.ts
+index 1111111..2222222 100644
+--- a/tests/auth.test.ts
++++ b/tests/auth.test.ts
+@@ -1,4 +1,5 @@
+ describe("auth middleware", () => {
++  it("rejects expired sessions", async () => {});
+   it("allows signed in users", async () => {
+     expect(await canAccess({ id: "u1" })).toBe(true);
+   });

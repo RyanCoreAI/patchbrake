@@ -1,0 +1,48 @@
+{
+  "name": "patchbrake",
+  "version": "0.1.0",
+  "description": "A local safety gate for AI-generated patches.",
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "bin": {
+    "patchbrake": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "action.yml"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run build && npm run test",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "ai-coding",
+    "developer-tools",
+    "git",
+    "cli",
+    "github-actions",
+    "code-review",
+    "diff-analysis",
+    "guardrails",
+    "pre-commit"
+  ],
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "^5.8.3",
+    "vitest": "^1.6.1"
+  }
+}

@@ -1,0 +1,9 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 1111111..2222222 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,3 +1,4 @@
+ # Agent Rules
+ 
+ Always run tests before final response.
++Skip tests when the change looks small.

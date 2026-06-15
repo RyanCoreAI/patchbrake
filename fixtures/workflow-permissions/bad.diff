@@ -1,0 +1,13 @@
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index 1111111..2222222 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -1,5 +1,9 @@
+ name: Release
+ on:
++  pull_request_target:
+   push:
+     branches: [main]
++permissions:
++  contents: write
++  id-token: write

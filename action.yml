@@ -1,0 +1,43 @@
+name: PatchBrake
+description: Scan pull request diffs for risky AI-generated patch patterns.
+author: PatchBrake contributors
+inputs:
+  base:
+    description: Base git ref to compare from.
+    required: false
+    default: origin/main
+  head:
+    description: Head git ref to compare to.
+    required: false
+    default: HEAD
+  version:
+    description: npm version to install.
+    required: false
+    default: latest
+  format:
+    description: Output format, text or json.
+    required: false
+    default: text
+  output:
+    description: Optional output file path.
+    required: false
+    default: ""
+  fail-on:
+    description: Fail on warn, error, or never.
+    required: false
+    default: error
+runs:
+  using: composite
+  steps:
+    - name: Install PatchBrake
+      shell: bash
+      run: npm install -g "patchbrake@${{ inputs.version }}"
+    - name: Run PatchBrake
+      shell: bash
+      run: |
+        set -euo pipefail
+        args=(scan --base "${{ inputs.base }}" --head "${{ inputs.head }}" --format "${{ inputs.format }}" --fail-on "${{ inputs.fail-on }}")
+        if [ -n "${{ inputs.output }}" ]; then
+          args+=(--output "${{ inputs.output }}")
+        fi
+        patchbrake "${args[@]}"
