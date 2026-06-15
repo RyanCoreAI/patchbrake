@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: RyanCoreAI/patchbrake@v0.1.0
+      - uses: RyanCoreAI/patchbrake@v0.1.2
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
