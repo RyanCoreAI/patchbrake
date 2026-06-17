@@ -21,6 +21,9 @@ export interface ScanCommandOptions {
   failOn?: "warn" | "error" | "never";
   cwd?: string;
   ignoreBaseline?: boolean;
+  noCustomRules?: boolean;
+  disallowInlineIgnore?: boolean;
+  failOnNewIgnore?: boolean;
 }
 
 export function runScan(options: ScanCommandOptions): { result: ScanResult; output: string; exitCode: number } {
@@ -51,12 +54,17 @@ export function runScan(options: ScanCommandOptions): { result: ScanResult; outp
     output: options.output,
     failOn,
     configPath: options.config,
-    ignoreBaseline: options.ignoreBaseline
+    ignoreBaseline: options.ignoreBaseline,
+    noCustomRules: options.noCustomRules,
+    disallowInlineIgnore: options.disallowInlineIgnore,
+    failOnNewIgnore: options.failOnNewIgnore
   };
 
-  const result = runRules(files, [...builtinRules, ...loadCustomRules(cwd, config)], config, scanOptions);
+  const customRules = options.noCustomRules ? [] : loadCustomRules(cwd, config);
+  const result = runRules(files, [...builtinRules, ...customRules], config, scanOptions);
   const output = formatReport(result, format);
-  const exitCode = shouldFail(result.findings, failOn) ? 1 : 0;
+  const hasNewIgnore = result.findings.some((finding) => finding.ruleId === "inline-ignore" && !finding.suppressed);
+  const exitCode = shouldFail(result.findings, failOn) || (options.failOnNewIgnore && hasNewIgnore) ? 1 : 0;
 
   if (options.output) {
     fs.writeFileSync(path.resolve(cwd, options.output), `${output}\n`, "utf8");

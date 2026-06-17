@@ -2,7 +2,23 @@ import type { Rule } from "../types";
 import { getAddedLines, getFilePath } from "../diff-parser";
 import { isWorkflowPath } from "../path-utils";
 
-const RISKY_PERMISSION_RE = /^\s*(?:permissions:\s*write-all|(?:contents|actions|checks|deployments|id-token|packages|pull-requests|repository-projects|security-events):\s*write)\s*$/i;
+export const GITHUB_TOKEN_WRITE_PERMISSIONS = new Set([
+  "actions",
+  "artifact-metadata",
+  "attestations",
+  "checks",
+  "code-quality",
+  "contents",
+  "deployments",
+  "discussions",
+  "id-token",
+  "issues",
+  "packages",
+  "pages",
+  "pull-requests",
+  "security-events",
+  "statuses"
+]);
 
 export const workflowPermissionsRule: Rule = {
   id: "workflow-permissions",
@@ -38,16 +54,23 @@ export const workflowPermissionsRule: Rule = {
           continue;
         }
 
-        if (RISKY_PERMISSION_RE.test(content)) {
+        const riskyPermission = getRiskyPermission(content);
+        if (riskyPermission) {
           findings.push({
             ruleId: "workflow-permissions",
             category: "workflow" as const,
             severity: "warn" as const,
-            message: "Workflow permission was widened to write scope.",
+            message:
+              riskyPermission === "id-token"
+                ? "Workflow OIDC token permission was widened to id-token: write."
+                : "Workflow permission was widened to write scope.",
             filePath,
             line: line.newLineNumber,
             excerpt: content.trim(),
-            remediation: "Restrict the permission to the minimum read/write scope needed for this job."
+            remediation:
+              riskyPermission === "id-token"
+                ? "Only grant id-token: write to trusted OIDC deployment jobs with narrow cloud trust policies."
+                : "Restrict the permission to the minimum read/write scope needed for this job."
           });
         }
       }
@@ -56,3 +79,17 @@ export const workflowPermissionsRule: Rule = {
     return findings;
   }
 };
+
+function getRiskyPermission(content: string): string | undefined {
+  if (/^\s*permissions:\s*write-all\s*(?:#.*)?$/i.test(content)) {
+    return "write-all";
+  }
+
+  const match = content.match(/^\s*([a-z-]+):\s*write\s*(?:#.*)?$/i);
+  if (!match) {
+    return undefined;
+  }
+
+  const permission = match[1].toLowerCase();
+  return GITHUB_TOKEN_WRITE_PERMISSIONS.has(permission) ? permission : undefined;
+}

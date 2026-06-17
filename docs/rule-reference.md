@@ -10,13 +10,17 @@ Flags likely secrets added in a diff, including private keys, GitHub tokens, Ope
 
 Flags deleted test files and removed `describe`, `it`, `test`, or `expect` lines. Deleting an entire test file is `error`; removing test calls is `warn`; removing test calls while adding replacement coverage in the same diff is `info`.
 
+Limitation: this is a diff-level heuristic for common JavaScript/TypeScript test shapes. It does not replace language-specific coverage or test discovery.
+
 ### `workflow-permissions`
 
-Flags GitHub Actions `pull_request_target` and write-scoped permissions.
+Flags GitHub Actions `pull_request_target`, `permissions: write-all`, and write-scoped `GITHUB_TOKEN` permissions such as `contents`, `issues`, `pages`, `statuses`, `attestations`, and `id-token`.
 
 ### `migration-risk`
 
 Flags destructive SQL changes such as `DROP TABLE`, `TRUNCATE`, and `DELETE FROM` without `WHERE`.
+
+Limitation: this rule reads added diff lines, not a full SQL AST. It should be treated as a guard for obvious migration risk, not database-specific safety proof.
 
 ### `prompt-config-drift`
 
@@ -29,6 +33,8 @@ Beta rules default to `warn` and should not block PRs unless a project opts in.
 ### `auth-regression`
 
 Flags high-confidence auth guard removals in auth-sensitive files.
+
+Limitation: this beta rule looks for common guard names and auth-sensitive paths. It can miss project-specific authorization patterns and should stay `warn` unless tuned for a repository.
 
 ### `package-script-risk`
 

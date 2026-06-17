@@ -19,6 +19,24 @@ function scanFixture(relativePath: string, configOverride?: Partial<ResolvedConf
   });
 }
 
+function scanWorkflowLine(content: string) {
+  const diff = `diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -1,2 +1,3 @@
+ name: ci
+ permissions:
++  ${content}
+`;
+  const files = parseDiff(diff);
+  return runRules(files, builtinRules, loadConfig(process.cwd()), {
+    cwd: process.cwd(),
+    staged: true,
+    format: "text",
+    failOn: "error"
+  });
+}
+
 describe("builtin rules", () => {
   it("detects secret leaks", () => {
     const result = scanFixture("fixtures/secret-leak/bad.diff");
@@ -38,6 +56,27 @@ describe("builtin rules", () => {
   it("detects risky workflow permissions", () => {
     const result = scanFixture("fixtures/workflow-permissions/bad.diff");
     expect(result.findings.map((finding) => finding.ruleId)).toContain("workflow-permissions");
+  });
+
+  it("detects expanded GitHub token write permissions", () => {
+    for (const permission of ["issues", "pages", "statuses", "attestations", "artifact-metadata", "code-quality", "discussions"]) {
+      const result = scanWorkflowLine(`${permission}: write`);
+      expect(result.findings.map((finding) => finding.ruleId)).toContain("workflow-permissions");
+    }
+  });
+
+  it("does not flag read-only workflow permissions", () => {
+    for (const permission of ["contents: read", "models: read", "vulnerability-alerts: read", "permissions: read-all"]) {
+      const result = scanWorkflowLine(permission);
+      expect(result.findings.map((finding) => finding.ruleId)).not.toContain("workflow-permissions");
+    }
+  });
+
+  it("explains OIDC risk for id-token write", () => {
+    const result = scanWorkflowLine("id-token: write");
+    const finding = result.findings.find((candidate) => candidate.ruleId === "workflow-permissions");
+
+    expect(finding?.message).toContain("OIDC");
   });
 
   it("detects migration risk", () => {

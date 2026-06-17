@@ -56,12 +56,15 @@ export function runRules(files: RuleContext["files"], rules: Rule[], config: Res
     }
   }
 
+  findings.push(...createInlineIgnoreFindings(scannedFiles, findings.length, options));
+
   return {
     files: scannedFiles,
     findings,
     rulesRun,
     skippedFiles,
-    ruleTimings
+    ruleTimings,
+    reportTimings: config.reportTimings
   };
 }
 
@@ -155,7 +158,7 @@ function getSuppression(finding: Finding, files: DiffFile[], config: ResolvedCon
   }
 
   const file = files.find((candidate) => getFilePath(candidate) === finding.filePath);
-  if (file && hasInlineIgnore(file, finding)) {
+  if (!options.disallowInlineIgnore && file && hasInlineIgnore(file, finding)) {
     return {
       kind: "inline" as const,
       reason: "Matched patchbrake inline ignore comment."
@@ -163,6 +166,47 @@ function getSuppression(finding: Finding, files: DiffFile[], config: ResolvedCon
   }
 
   return undefined;
+}
+
+function createInlineIgnoreFindings(files: DiffFile[], offset: number, options: ScanOptions): Finding[] {
+  if (!options.disallowInlineIgnore && !options.failOnNewIgnore) {
+    return [];
+  }
+
+  const drafts: FindingDraft[] = [];
+  const severity = options.failOnNewIgnore ? "error" : "warn";
+  const message = options.disallowInlineIgnore
+    ? "PatchBrake inline ignore was added while inline ignores are disallowed."
+    : "PatchBrake inline ignore was added in this diff.";
+
+  for (const file of files) {
+    const filePath = getFilePath(file);
+    for (const hunk of file.hunks) {
+      for (const line of hunk.lines) {
+        if (line.type !== "add" || !line.content.includes("patchbrake-ignore")) {
+          continue;
+        }
+
+        drafts.push({
+          ruleId: "inline-ignore",
+          category: "unknown",
+          severity,
+          message,
+          filePath,
+          line: line.newLineNumber,
+          excerpt: line.content.trim(),
+          remediation: "Remove the inline ignore or move the exception to reviewed config/baseline."
+        });
+      }
+    }
+  }
+
+  return drafts.map((draft, index) => ({
+    ...draft,
+    severity: draft.severity as Exclude<Severity, "off">,
+    fingerprint: createFindingFingerprint(draft),
+    id: createFindingId(draft, offset + index)
+  }));
 }
 
 function matchesIgnoreEntry(finding: Finding, entry: string | IgnoreEntry): boolean {

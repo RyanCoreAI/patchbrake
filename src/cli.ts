@@ -29,9 +29,15 @@ program
   .option("--config <path>", "path to .patchbrakerc.json")
   .option("--fail-on <level>", "exit with code 1 on warn, error, or never", parseFailOn)
   .option("--cwd <path>", "working directory")
+  .option("--no-custom-rules", "disable local custom rule loading")
+  .option("--disallow-inline-ignore", "do not suppress findings with patchbrake inline ignore comments")
+  .option("--fail-on-new-ignore", "exit with code 1 when this diff adds patchbrake inline ignore comments")
   .action((options) => {
     try {
-      const { output, exitCode } = runScan(options);
+      const { output, exitCode } = runScan({
+        ...options,
+        noCustomRules: options.customRules === false
+      });
       if (!options.output) {
         process.stdout.write(`${output}\n`);
       }

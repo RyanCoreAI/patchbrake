@@ -41,6 +41,11 @@ No LLM. No dashboard. No code upload. Just explainable local diff checks.
 
 ## Quickstart
 
+Requirements:
+
+- Node.js 20+ with npm. `npx` comes with npm.
+- Git, inside the repository you want to scan.
+
 Run PatchBrake before committing AI-generated changes:
 
 ```bash
@@ -57,7 +62,7 @@ git commit -m "feat: ..."
 Pin a version if needed:
 
 ```bash
-npx patchbrake@0.1.3 scan --staged
+npx patchbrake@0.2.0 scan --staged
 ```
 
 Optional global install:
@@ -101,12 +106,6 @@ Create a baseline for accepted existing findings:
 
 ```bash
 npx patchbrake baseline --staged
-```
-
-Run the public benchmark:
-
-```bash
-npm run benchmark
 ```
 
 ## Example Output
@@ -204,15 +203,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: RyanCoreAI/patchbrake@v0.1.3
+      - uses: RyanCoreAI/patchbrake@v0.2.0
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
-          version: "0.1.3"
+          version: "0.2.0"
           fail-on: error
 ```
 
-See [docs/github-action.md](docs/github-action.md) for details.
+The Action defaults to CI-safe behavior: local custom rules are disabled, inline ignores do not suppress findings, and newly added `patchbrake-ignore*` comments fail the run. See [docs/github-action.md](docs/github-action.md) for details.
 
 ## Project Scope
 
@@ -225,6 +224,7 @@ npm install
 npm run build
 npm test
 npm run check
+npm run benchmark
 ```
 
 Run locally after build:
@@ -251,7 +251,7 @@ More docs:
 ## Roadmap
 
 - v0.1: CLI scanner, JSON/SARIF output, config, GitHub Action, starter rules.
-- v0.2: baseline/ignore, hooks, benchmark, CI recipes.
+- v0.2: runtime config validation, CI-safe Action defaults, expanded workflow permission coverage.
 - v0.3: beta auth/package/shell/dependency rules.
 - v0.5: custom rule SDK and shareable configs.
 - v1.0: stable CLI/config/output/rule contracts after real-world feedback.

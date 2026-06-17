@@ -45,3 +45,10 @@ module.exports = {
 - Use local file paths or installed packages only.
 - Remote `http://` and `https://` rule paths are rejected.
 - Treat custom rules as local code execution.
+- In CI, disable custom rules unless the repository and PR trust boundary are clear:
+
+```bash
+npx patchbrake scan --base origin/main --head HEAD --no-custom-rules
+```
+
+The GitHub Action defaults to `allow-custom-rules: "false"` for this reason.

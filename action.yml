@@ -13,7 +13,7 @@ inputs:
   version:
     description: npm version to install. Pin this to the same version as the Action tag for reproducible runs.
     required: false
-    default: "0.1.3"
+    default: "0.2.0"
   format:
     description: Output format, text, json, or sarif.
     required: false
@@ -26,6 +26,18 @@ inputs:
     description: Fail on warn, error, or never.
     required: false
     default: error
+  allow-custom-rules:
+    description: Allow loading local custom rule modules from the checked-out repository.
+    required: false
+    default: "false"
+  allow-inline-ignore:
+    description: Allow patchbrake-ignore comments in the diff to suppress findings.
+    required: false
+    default: "false"
+  fail-on-new-ignore:
+    description: Fail when the diff adds patchbrake inline ignore comments.
+    required: false
+    default: "true"
 runs:
   using: composite
   steps:
@@ -39,5 +51,14 @@ runs:
         args=(scan --base "${{ inputs.base }}" --head "${{ inputs.head }}" --format "${{ inputs.format }}" --fail-on "${{ inputs.fail-on }}")
         if [ -n "${{ inputs.output }}" ]; then
           args+=(--output "${{ inputs.output }}")
+        fi
+        if [ "${{ inputs.allow-custom-rules }}" != "true" ]; then
+          args+=(--no-custom-rules)
+        fi
+        if [ "${{ inputs.allow-inline-ignore }}" != "true" ]; then
+          args+=(--disallow-inline-ignore)
+        fi
+        if [ "${{ inputs.fail-on-new-ignore }}" = "true" ]; then
+          args+=(--fail-on-new-ignore)
         fi
         patchbrake "${args[@]}"

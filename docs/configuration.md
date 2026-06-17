@@ -5,8 +5,10 @@ PatchBrake reads `.patchbrakerc.json` or `patchbrake.config.json` from the curre
 Create a starter config:
 
 ```bash
-patchbrake init
+npx patchbrake init
 ```
+
+PatchBrake validates config at runtime and fails fast on unsupported fields, invalid severity values, invalid output formats, invalid `failOn` values, malformed arrays, or non-positive `maxFileSizeBytes`. This avoids silently weakening a safety gate because of a typo.
 
 ## Fields
 
@@ -17,6 +19,7 @@ patchbrake init
   "include": ["**"],
   "exclude": ["node_modules/**", "dist/**", "coverage/**", ".git/**"],
   "maxFileSizeBytes": 512000,
+  "reportTimings": false,
   "baseline": ".patchbrake-baseline.json",
   "ignore": [],
   "extends": ["patchbrake-config-ai-coding"],
@@ -78,3 +81,5 @@ Use `overrides` for directory-scoped rule behavior:
   ]
 }
 ```
+
+Current override semantics are intentionally conservative: overrides only affect rules that are already enabled globally. If a rule is globally set to `off`, a directory override will not re-enable it in this release.

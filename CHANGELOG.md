@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0
+
+- Added runtime validation for `.patchbrakerc.json`, `patchbrake.config.json`, extended configs, rule severity values, output formats, ignore entries, overrides, and size limits.
+- Added CI safety switches: `--no-custom-rules`, `--disallow-inline-ignore`, and `--fail-on-new-ignore`.
+- Hardened the GitHub Action defaults so CI does not load repository-local custom rule code, does not allow inline ignore suppressions, and fails on newly added `patchbrake-ignore*` comments.
+- Expanded `workflow-permissions` coverage for current GitHub `GITHUB_TOKEN` write permissions, including `issues`, `pages`, `statuses`, `attestations`, `artifact-metadata`, `code-quality`, and `discussions`.
+- Made `reportTimings` control text and JSON timing output instead of always emitting rule timings.
+- Documented override semantics, inline ignore governance, custom rule trust boundaries, and heuristic rule limitations.
+
 ## 0.1.3
 
 - Hardened the GitHub Action install path by pinning the default npm package version and installing with `--ignore-scripts`.

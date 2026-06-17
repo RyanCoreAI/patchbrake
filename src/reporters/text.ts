@@ -71,7 +71,7 @@ function formatFinding(finding: ScanResult["findings"][number]): string {
 }
 
 function formatTimings(result: ScanResult): string | undefined {
-  if (result.ruleTimings.length === 0) {
+  if (!result.reportTimings || result.ruleTimings.length === 0) {
     return undefined;
   }
 

@@ -25,6 +25,11 @@ No LLM. No dashboard. No code upload. 只扫描这次 diff。
 
 ## 快速开始
 
+前置条件：
+
+- 已安装 Node.js 20+ 和 npm。`npx` 是 npm 自带的命令。
+- 已安装 Git，并且在你要扫描的项目仓库里运行命令。
+
 让 AI 工具改完代码后，把改动加入暂存区：
 
 ```bash
@@ -41,7 +46,7 @@ git commit -m "feat: ..."
 需要固定版本时：
 
 ```bash
-npx patchbrake@0.1.3 scan --staged
+npx patchbrake@0.2.0 scan --staged
 ```
 
 也可以全局安装：
@@ -167,13 +172,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: RyanCoreAI/patchbrake@v0.1.3
+      - uses: RyanCoreAI/patchbrake@v0.2.0
         with:
           base: origin/${{ github.base_ref }}
           head: HEAD
-          version: "0.1.3"
+          version: "0.2.0"
           fail-on: error
 ```
+
+GitHub Action 默认采用 CI 安全模式：不加载仓库里的自定义规则、不让新增的 `patchbrake-ignore*` 直接压制 finding，并且遇到新增 ignore 注释会失败。
 
 ## 适合哪些人
 

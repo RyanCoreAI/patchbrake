@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Config, ResolvedConfig, RuleConfigValue } from "./types";
 import { matchesAnyGlob } from "./path-utils";
+import { validateConfig } from "./config-validator";
 
 const CONFIG_FILENAMES = [".patchbrakerc.json", "patchbrake.config.json"];
 
@@ -125,8 +126,14 @@ function readConfigFile(configPath: string): Config {
   const raw = fs.readFileSync(configPath, "utf8");
 
   try {
-    return JSON.parse(raw) as Config;
+    const parsed = JSON.parse(raw) as unknown;
+    validateConfig(parsed, configPath);
+    return parsed;
   } catch (error) {
+    if ((error as Error).message.startsWith("Invalid PatchBrake config")) {
+      throw error;
+    }
+
     throw new Error(`Invalid JSON config at ${configPath}: ${(error as Error).message}`);
   }
 }

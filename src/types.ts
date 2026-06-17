@@ -151,6 +151,9 @@ export interface ScanOptions {
   failOn: "warn" | "error" | "never";
   configPath?: string;
   ignoreBaseline?: boolean;
+  noCustomRules?: boolean;
+  disallowInlineIgnore?: boolean;
+  failOnNewIgnore?: boolean;
 }
 
 export interface ScanResult {
@@ -159,6 +162,7 @@ export interface ScanResult {
   rulesRun: string[];
   skippedFiles: SkippedFile[];
   ruleTimings: RuleTiming[];
+  reportTimings: boolean;
 }
 
 export type OutputFormat = "text" | "json" | "sarif";
