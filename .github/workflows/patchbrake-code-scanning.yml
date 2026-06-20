@@ -17,6 +17,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install PatchBrake
+        run: npm install -g patchbrake@0.2.0 --ignore-scripts
+
       - name: Run PatchBrake SARIF scan
         shell: bash
         run: |
@@ -30,7 +33,7 @@ jobs:
             head="HEAD"
           fi
 
-          npm exec --yes --package patchbrake@0.2.0 -- patchbrake scan \
+          patchbrake scan \
             --base "$base" \
             --head "$head" \
             --format sarif \
