@@ -4,6 +4,8 @@
 
 [![npm version](https://img.shields.io/npm/v/patchbrake.svg)](https://www.npmjs.com/package/patchbrake)
 [![CI](https://github.com/RyanCoreAI/patchbrake/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanCoreAI/patchbrake/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/RyanCoreAI/patchbrake/actions/workflows/codeql.yml/badge.svg)](https://github.com/RyanCoreAI/patchbrake/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://github.com/RyanCoreAI/patchbrake/actions/workflows/scorecard.yml/badge.svg)](https://github.com/RyanCoreAI/patchbrake/actions/workflows/scorecard.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **A local safety gate for AI-generated code changes.**
@@ -16,6 +18,14 @@ PatchBrake scans your Git diff locally before it ships.
 ```bash
 npx patchbrake scan --staged
 ```
+
+```text
+ERROR secret-leak src/config.ts:1
+ERROR deleted-tests tests/auth.test.ts
+WARN  workflow-permissions .github/workflows/release.yml:5
+```
+
+[See 5 reproducible demo cases](docs/demo-cases/README.md).
 
 ![PatchBrake demo](assets/demo.gif)
 
@@ -239,6 +249,7 @@ More docs:
 
 - [Rule reference](docs/rule-reference.md)
 - [Demo case](docs/demo-case.md)
+- [Reproducible demo cases](docs/demo-cases/README.md)
 - [Comparison](docs/comparison.md)
 - [Baseline and ignore](docs/baseline-ignore.md)
 - [Git hooks](docs/hooks.md)

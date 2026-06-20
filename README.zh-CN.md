@@ -134,6 +134,7 @@ npx patchbrake init
 ## 进一步了解
 
 - [Demo case](docs/demo-case.md)：一个可复现的 secret、删测试、Actions 权限放大示例。
+- [Reproducible demo cases](docs/demo-cases/README.md)：5 个可复制运行的 AI diff 风险示例。
 - [Comparison](docs/comparison.md)：PatchBrake 和 AI PR reviewer、secret scanner、SAST 的区别。
 
 ## 配置方式

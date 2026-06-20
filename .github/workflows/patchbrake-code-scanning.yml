@@ -1,0 +1,47 @@
+name: PatchBrake Code Scanning
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  patchbrake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run PatchBrake SARIF scan
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+            head="HEAD"
+          else
+            base="HEAD~1"
+            head="HEAD"
+          fi
+
+          npx --yes patchbrake@0.2.0 scan \
+            --base "$base" \
+            --head "$head" \
+            --format sarif \
+            --output patchbrake.sarif \
+            --fail-on never \
+            --no-custom-rules \
+            --disallow-inline-ignore \
+            --fail-on-new-ignore
+
+      - name: Upload PatchBrake SARIF
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: patchbrake.sarif
