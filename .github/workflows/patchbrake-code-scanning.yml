@@ -30,7 +30,7 @@ jobs:
             head="HEAD"
           fi
 
-          npx --yes patchbrake@0.2.0 scan \
+          npm exec --yes --package patchbrake@0.2.0 -- patchbrake scan \
             --base "$base" \
             --head "$head" \
             --format sarif \
