@@ -60,7 +60,7 @@
     "commander": "^12.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.19.0",
+    "@types/node": "^26.0.0",
     "typescript": "^5.8.3",
     "vitest": "^1.6.1"
   }
