@@ -1,5 +1,4 @@
 import type { DiffFile, DiffFileStatus, DiffHunk, DiffLine } from "./types";
-import { normalizePath } from "./path-utils";
 
 const HUNK_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@\s?(.*)$/;
 
@@ -87,9 +86,9 @@ export function parseDiff(diff: string): DiffFile[] {
 }
 
 function parseDiffGitLine(raw: string): DiffFile {
-  const match = /^diff --git a\/(.+) b\/(.+)$/.exec(raw);
-  const oldPath = match ? normalizePath(match[1]) : "unknown";
-  const newPath = match ? normalizePath(match[2]) : oldPath;
+  const match = /^diff --git ("(?:[^"\\]|\\.)*"|a\/.+) ("(?:[^"\\]|\\.)*"|b\/.+)$/.exec(raw);
+  const oldPath = match ? parsePathHeader(match[1], "unknown") : "unknown";
+  const newPath = match ? parsePathHeader(match[2], oldPath) : oldPath;
 
   return {
     oldPath,
@@ -105,7 +104,41 @@ function parsePathHeader(rawPath: string, fallback: string): string {
   }
 
   const pathOnly = rawPath.split("\t")[0] ?? rawPath;
-  return normalizePath(pathOnly.replace(/^[ab]\//, "")) || fallback;
+  // Git paths always use slash separators. Backslashes inside a C-quoted path
+  // are filename data, so decode before stripping the single diff prefix.
+  return decodeGitPath(pathOnly).replace(/^[ab]\//, "") || fallback;
+}
+
+function decodeGitPath(value: string): string {
+  if (!value.startsWith('"')) return value;
+  if (!value.endsWith('"')) throw new Error("Invalid quoted path in git diff.");
+
+  const bytes: number[] = [];
+  const escapes: Record<string, number> = { a: 7, b: 8, t: 9, n: 10, v: 11, f: 12, r: 13, '"': 34, "\\": 92 };
+  for (let i = 1; i < value.length - 1; i += 1) {
+    if (value[i] !== "\\") {
+      const codePoint = value.codePointAt(i)!;
+      bytes.push(...Buffer.from(String.fromCodePoint(codePoint), "utf8"));
+      if (codePoint > 0xffff) i += 1;
+      continue;
+    }
+
+    const escaped = value[++i];
+    if (escaped in escapes) {
+      bytes.push(escapes[escaped]);
+      continue;
+    }
+    if (/[0-7]/.test(escaped ?? "")) {
+      const octal = value.slice(i).match(/^[0-7]{1,3}/)![0];
+      const byte = parseInt(octal, 8);
+      if (byte > 255) throw new Error("Invalid octal path escape in git diff.");
+      bytes.push(byte);
+      i += octal.length - 1;
+      continue;
+    }
+    throw new Error("Invalid path escape in git diff.");
+  }
+  return Buffer.from(bytes).toString("utf8");
 }
 
 function parseHunkLine(

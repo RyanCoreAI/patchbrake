@@ -43,22 +43,45 @@ runs:
   steps:
     - name: Install PatchBrake
       shell: bash
-      run: npm install -g "patchbrake@${{ inputs.version }}" --ignore-scripts
-    - name: Run PatchBrake
-      shell: bash
+      env:
+        PATCHBRAKE_VERSION: ${{ inputs.version }}
       run: |
         set -euo pipefail
-        args=(scan --base "${{ inputs.base }}" --head "${{ inputs.head }}" --format "${{ inputs.format }}" --fail-on "${{ inputs.fail-on }}")
-        if [ -n "${{ inputs.output }}" ]; then
-          args+=(--output "${{ inputs.output }}")
+        if [[ ! "$PATCHBRAKE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+          echo 'PatchBrake version must be a pinned npm semver version.' >&2
+          exit 2
         fi
-        if [ "${{ inputs.allow-custom-rules }}" != "true" ]; then
+        npm install -g "patchbrake@$PATCHBRAKE_VERSION" --ignore-scripts
+    - name: Run PatchBrake
+      shell: bash
+      env:
+        PATCHBRAKE_BASE: ${{ inputs.base }}
+        PATCHBRAKE_HEAD: ${{ inputs.head }}
+        PATCHBRAKE_FORMAT: ${{ inputs.format }}
+        PATCHBRAKE_FAIL_ON: ${{ inputs.fail-on }}
+        PATCHBRAKE_OUTPUT: ${{ inputs.output }}
+        PATCHBRAKE_ALLOW_CUSTOM_RULES: ${{ inputs.allow-custom-rules }}
+        PATCHBRAKE_ALLOW_INLINE_IGNORE: ${{ inputs.allow-inline-ignore }}
+        PATCHBRAKE_FAIL_ON_NEW_IGNORE: ${{ inputs.fail-on-new-ignore }}
+      run: |
+        set -euo pipefail
+        for flag in "$PATCHBRAKE_ALLOW_CUSTOM_RULES" "$PATCHBRAKE_ALLOW_INLINE_IGNORE" "$PATCHBRAKE_FAIL_ON_NEW_IGNORE"; do
+          if [[ "$flag" != true && "$flag" != false ]]; then
+            echo 'PatchBrake boolean inputs must be true or false.' >&2
+            exit 2
+          fi
+        done
+        args=(scan --base "$PATCHBRAKE_BASE" --head "$PATCHBRAKE_HEAD" --format "$PATCHBRAKE_FORMAT" --fail-on "$PATCHBRAKE_FAIL_ON")
+        if [ -n "$PATCHBRAKE_OUTPUT" ]; then
+          args+=(--output "$PATCHBRAKE_OUTPUT")
+        fi
+        if [ "$PATCHBRAKE_ALLOW_CUSTOM_RULES" != "true" ]; then
           args+=(--no-custom-rules)
         fi
-        if [ "${{ inputs.allow-inline-ignore }}" != "true" ]; then
+        if [ "$PATCHBRAKE_ALLOW_INLINE_IGNORE" != "true" ]; then
           args+=(--disallow-inline-ignore)
         fi
-        if [ "${{ inputs.fail-on-new-ignore }}" = "true" ]; then
+        if [ "$PATCHBRAKE_FAIL_ON_NEW_IGNORE" = "true" ]; then
           args+=(--fail-on-new-ignore)
         fi
         patchbrake "${args[@]}"
