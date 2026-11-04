@@ -1,5 +1,6 @@
 export function normalizePath(path: string): string {
-  return path.replace(/\\/g, "/").replace(/^a\//, "").replace(/^b\//, "");
+  // Diff prefixes are removed once by the parser; a/ and b/ can be real directories.
+  return path.replace(/\\/g, "/").replace(/^\.\//, "");
 }
 
 export function getDisplayPath(path: string): string {
@@ -63,12 +64,17 @@ function globToRegExp(pattern: string): RegExp {
     const next = normalized[i + 1];
 
     if (char === "*" && next === "*") {
-      source += ".*";
-      i += 1;
+      if (normalized[i + 2] === "/") {
+        source += "(?:[^/]+/)*";
+        i += 2;
+      } else {
+        source += ".*";
+        i += 1;
+      }
     } else if (char === "*") {
       source += "[^/]*";
     } else if (char === "?") {
-      source += ".";
+      source += "[^/]";
     } else {
       source += escapeRegExp(char);
     }
