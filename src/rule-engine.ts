@@ -3,6 +3,7 @@ import type { DiffFile, Finding, FindingDraft, IgnoreEntry, ResolvedConfig, Rule
 import { getConfiguredSeverity, hasRuleSeverityOverride, resolveConfigForPath } from "./config";
 import { getFilePath } from "./diff-parser";
 import { matchesAnyGlob } from "./path-utils";
+import { redactSecrets } from "./redaction";
 
 const SEVERITY_RANK: Record<Exclude<Severity, "off">, number> = {
   info: 1,
@@ -60,7 +61,13 @@ export function runRules(files: RuleContext["files"], rules: Rule[], config: Res
 
   return {
     files: scannedFiles,
-    findings,
+    findings: findings.map(finding => ({
+      ...finding,
+      message: redactSecrets(finding.message),
+      excerpt: finding.excerpt === undefined ? undefined : redactSecrets(finding.excerpt),
+      remediation: finding.remediation === undefined ? undefined : redactSecrets(finding.remediation),
+      suppressed: finding.suppressed ? { ...finding.suppressed, reason: finding.suppressed.reason === undefined ? undefined : redactSecrets(finding.suppressed.reason) } : undefined
+    })),
     rulesRun,
     skippedFiles,
     ruleTimings,
