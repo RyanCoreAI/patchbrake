@@ -1,17 +1,25 @@
 import { spawnSync } from "node:child_process";
 
+// The parser consumes a machine-readable patch, independent of the user's
+// color, prefix, textconv and output-indicator preferences.
+const PATCH_OPTIONS = [
+  "--no-ext-diff", "--no-textconv", "--no-color", "--no-relative", "--unified=3",
+  "--src-prefix=a/", "--dst-prefix=b/", "--line-prefix=",
+  "--output-indicator-new=+", "--output-indicator-old=-", "--output-indicator-context= "
+];
+
 export function isInsideGitRepo(cwd: string): boolean {
   const result = runGit(["rev-parse", "--is-inside-work-tree"], cwd, false);
   return result.status === 0 && result.stdout.trim() === "true";
 }
 
 export function getStagedDiff(cwd: string): string {
-  const result = runGit(["diff", "--staged", "--no-ext-diff", "--unified=3"], cwd, true);
+  const result = runGit(["diff", "--staged", ...PATCH_OPTIONS], cwd, true);
   return result.stdout;
 }
 
 export function getRangeDiff(cwd: string, base: string, head: string): string {
-  const result = runGit(["diff", "--no-ext-diff", "--unified=3", `${base}...${head}`], cwd, true);
+  const result = runGit(["diff", ...PATCH_OPTIONS, `${base}...${head}`, "--"], cwd, true);
   return result.stdout;
 }
 

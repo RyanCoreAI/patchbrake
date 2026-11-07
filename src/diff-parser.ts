@@ -42,12 +42,12 @@ export function parseDiff(diff: string): DiffFile[] {
       continue;
     }
 
-    if (raw.startsWith("--- ")) {
+    if (!currentHunk && raw.startsWith("--- ")) {
       currentFile.oldPath = parsePathHeader(raw.slice(4), currentFile.oldPath);
       continue;
     }
 
-    if (raw.startsWith("+++ ")) {
+    if (!currentHunk && raw.startsWith("+++ ")) {
       currentFile.newPath = parsePathHeader(raw.slice(4), currentFile.newPath);
       continue;
     }

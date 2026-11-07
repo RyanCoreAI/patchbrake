@@ -244,24 +244,23 @@ function hasInlineIgnore(file: DiffFile, finding: Finding): boolean {
   const inlineLines = file.hunks.flatMap((hunk) => hunk.lines);
 
   return inlineLines.some((line) => {
-    if (!line.content.includes("patchbrake-ignore")) {
+    if (line.type === "remove" || !line.content.includes("patchbrake-ignore")) {
       return false;
     }
 
-    const appliesToRule = line.content.includes(finding.ruleId) || /patchbrake-ignore(?:-next-line|-file)?(?:\s|$)/.test(line.content);
-    if (!appliesToRule) {
-      return false;
+    const directives = line.content.matchAll(/\bpatchbrake-ignore(-next-line|-file)?(?=$|[\s*])(?:[ \t]+([^\s*]+))?/g);
+    for (const directive of directives) {
+      // A named exception belongs only to that exact rule. A bare directive
+      // retains the existing all-rules behavior.
+      if (directive[2] && directive[2] !== finding.ruleId) continue;
+      if (directive[1] === "-file") return true;
+      if (directive[1] === "-next-line") {
+        if (line.newLineNumber !== undefined && finding.line !== undefined && line.newLineNumber + 1 === finding.line) return true;
+      } else if (line.newLineNumber === finding.line) {
+        return true;
+      }
     }
-
-    if (line.content.includes("patchbrake-ignore-file")) {
-      return true;
-    }
-
-    if (line.content.includes("patchbrake-ignore-next-line")) {
-      return line.newLineNumber !== undefined && finding.line !== undefined && line.newLineNumber + 1 === finding.line;
-    }
-
-    return line.newLineNumber === finding.line || line.oldLineNumber === finding.line;
+    return false;
   });
 }
 
