@@ -9,6 +9,29 @@ import { runRules } from "../src/rule-engine";
 import { builtinRules } from "../src/rules";
 
 describe("parseDiff", () => {
+  it("handles long ambiguous Git headers without regex backtracking", () => {
+    const filename = "a b/".repeat(50_000) + "tail.ts";
+    const file = parseDiff(`diff --git "a/old.ts" b/${filename}\n`)[0];
+    expect(file.oldPath).toBe("old.ts");
+    expect(file.newPath).toBe(filename);
+  });
+
+  it.each([
+    ['a/old name.ts b/new name.ts', 'old name.ts', 'new name.ts'],
+    ['a/old name.ts "b/new\\tname.ts"', 'old name.ts', 'new\tname.ts'],
+    ['"a/old\\tname.ts" b/new name.ts', 'old\tname.ts', 'new name.ts'],
+    ['"a/old\\\"name.ts" "b/new\\\"name.ts"', 'old"name.ts', 'new"name.ts'],
+  ])("parses mixed quoting and spaces: %s", (header, oldPath, newPath) => {
+    const file = parseDiff(`diff --git ${header}\n`)[0];
+    expect(file.oldPath).toBe(oldPath);
+    expect(file.newPath).toBe(newPath);
+  });
+
+  it.each(['"a/unclosed b/new.ts', '"a/old.ts" "b/unclosed', 'a/old.ts b/'])
+    ("rejects malformed Git headers: %s", header => {
+      expect(parseDiff(`diff --git ${header}\n`)[0].newPath).toBe("unknown");
+    });
+
   it("parses files, hunks, and added lines", () => {
     const diff = fs.readFileSync(path.join(process.cwd(), "fixtures/secret-leak/bad.diff"), "utf8");
     const files = parseDiff(diff);

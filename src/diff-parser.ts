@@ -86,9 +86,9 @@ export function parseDiff(diff: string): DiffFile[] {
 }
 
 function parseDiffGitLine(raw: string): DiffFile {
-  const match = /^diff --git ("(?:[^"\\]|\\.)*"|a\/.+) ("(?:[^"\\]|\\.)*"|b\/.+)$/.exec(raw);
-  const oldPath = match ? parsePathHeader(match[1], "unknown") : "unknown";
-  const newPath = match ? parsePathHeader(match[2], oldPath) : oldPath;
+  const paths = splitDiffPaths(raw.slice("diff --git ".length));
+  const oldPath = paths ? parsePathHeader(paths[0], "unknown") : "unknown";
+  const newPath = paths ? parsePathHeader(paths[1], oldPath) : oldPath;
 
   return {
     oldPath,
@@ -96,6 +96,38 @@ function parseDiffGitLine(raw: string): DiffFile {
     status: "modified",
     hunks: []
   };
+}
+
+// Avoid backtracking across ambiguous spaces in attacker-controlled filenames.
+// Quoted tokens are consumed once; unquoted paths use the last Git prefix boundary.
+function quotedPathEnd(value: string, start: number): number {
+  for (let i = start + 1; i < value.length; i += 1) {
+    if (value[i] === "\\") i += 1;
+    else if (value[i] === '"') return i;
+  }
+  return -1;
+}
+
+function splitDiffPaths(value: string): [string, string] | undefined {
+  let boundary: number;
+  if (value.startsWith('"')) {
+    boundary = quotedPathEnd(value, 0) + 1;
+    if (boundary === 0 || value[boundary] !== " ") return undefined;
+  } else {
+    if (!value.startsWith("a/")) return undefined;
+    const quotedBoundary = value.lastIndexOf(' "');
+    boundary = quotedBoundary > 2 && quotedPathEnd(value, quotedBoundary + 1) === value.length - 1
+      ? quotedBoundary
+      : value.lastIndexOf(" b/");
+    if (boundary <= 2) return undefined;
+  }
+  const second = value.slice(boundary + 1);
+  if (second.startsWith('"')) {
+    if (quotedPathEnd(second, 0) !== second.length - 1) return undefined;
+  } else if (!second.startsWith("b/") || second.length <= 2) {
+    return undefined;
+  }
+  return [value.slice(0, boundary), second];
 }
 
 function parsePathHeader(rawPath: string, fallback: string): string {
