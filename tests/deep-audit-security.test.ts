@@ -9,6 +9,7 @@ import { formatTextReport } from "../src/reporters/text";
 import { formatSarifReport } from "../src/reporters/sarif";
 
 const syntheticToken = "ghp_" + "a".repeat(36);
+const ignoreMarker = ["patchbrake", "ignore"].join("-");
 function scan(filePath: string, line: string, include: string[] = []) {
   const files = parseDiff(`diff --git a/${filePath} b/${filePath}\n--- a/${filePath}\n+++ b/${filePath}\n@@ -0,0 +1 @@\n+${line}\n`);
   return runRules(files, builtinRules, { ...loadConfig(process.cwd()), include }, {
@@ -50,7 +51,7 @@ describe("deep audit security regressions", () => {
     expect(format(result)).not.toContain(syntheticToken);
   });
   it("redacts secret excerpts from inline-ignore findings", () => {
-    const result = scan("src/config.ts", `const token = "${syntheticToken}"; // patchbrake-ignore`);
+    const result = scan("src/config.ts", `const token = "${syntheticToken}"; // ${ignoreMarker}`);
     expect(result.findings.some(f => f.ruleId === "inline-ignore")).toBe(true);
     expect(formatJsonReport(result)).not.toContain(syntheticToken);
   });

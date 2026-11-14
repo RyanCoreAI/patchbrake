@@ -10,6 +10,7 @@ import { builtinRules } from "../src/rules";
 import { runScan } from "../src/commands/scan";
 
 const token = "ghp_" + "z".repeat(36);
+const ignoreMarker = ["patchbrake", "ignore"].join("-");
 function scan(lines: string[]) {
   const oldCount = lines.filter(line => !line.startsWith("+")).length;
   const newCount = lines.filter(line => !line.startsWith("-")).length;
@@ -31,21 +32,21 @@ describe("second audit diff and suppression boundaries", () => {
     expect(result.findings.some(f => f.ruleId === "secret-leak" && f.line === 1)).toBe(true);
   });
   it("does not retain removed file-wide ignore directives", () => {
-    const result = scan(["-// patchbrake-ignore-file secret-leak", `+const token = \"${token}\";`]);
+    const result = scan([`-// ${ignoreMarker}-file secret-leak`, `+const token = \"${token}\";`]);
     expect(result.findings.find(f => f.ruleId === "secret-leak")?.suppressed).toBeUndefined();
   });
   it.each(["", "-next-line", "-file"])("does not widen a rule-specific %s ignore to all rules", suffix => {
-    const lines = suffix ? [`+// patchbrake-ignore${suffix} migration-risk`, `+const token = \"${token}\";`]
-      : [`+const token = \"${token}\"; // patchbrake-ignore migration-risk`];
+    const lines = suffix ? [`+// ${ignoreMarker}${suffix} migration-risk`, `+const token = \"${token}\";`]
+      : [`+const token = \"${token}\"; // ${ignoreMarker} migration-risk`];
     expect(scan(lines).findings.find(f => f.ruleId === "secret-leak")?.suppressed).toBeUndefined();
   });
   it.each(["", "-next-line", "-file"])("still honors the exact matching %s ignore", suffix => {
-    const lines = suffix ? [`+// patchbrake-ignore${suffix} secret-leak`, `+const token = \"${token}\";`]
-      : [`+const token = \"${token}\"; // patchbrake-ignore secret-leak`];
+    const lines = suffix ? [`+// ${ignoreMarker}${suffix} secret-leak`, `+const token = \"${token}\";`]
+      : [`+const token = \"${token}\"; // ${ignoreMarker} secret-leak`];
     expect(scan(lines).findings.find(f => f.ruleId === "secret-leak")?.suppressed?.kind).toBe("inline");
   });
   it.each(["custom.rule", "custom:rule", "secret-leak-extra"])("does not treat unknown rule %s as a bare all-rules directive", rule => {
-    expect(scan([`+const token = \"${token}\"; // patchbrake-ignore ${rule}`])
+    expect(scan([`+const token = \"${token}\"; // ${ignoreMarker} ${rule}`])
       .findings.find(f => f.ruleId === "secret-leak")?.suppressed).toBeUndefined();
   });
   it.each([

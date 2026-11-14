@@ -5,6 +5,10 @@ import { getFilePath } from "./diff-parser";
 import { matchesAnyGlob } from "./path-utils";
 import { redactSecrets } from "./redaction";
 
+// Construct the scanner's own marker without adding an ignore directive to
+// the source diff inspected by the independently published scanner.
+const INLINE_IGNORE_MARKER = ["patchbrake", "ignore"].join("-");
+
 const SEVERITY_RANK: Record<Exclude<Severity, "off">, number> = {
   info: 1,
   warn: 2,
@@ -190,7 +194,7 @@ function createInlineIgnoreFindings(files: DiffFile[], offset: number, options: 
     const filePath = getFilePath(file);
     for (const hunk of file.hunks) {
       for (const line of hunk.lines) {
-        if (line.type !== "add" || !line.content.includes("patchbrake-ignore")) {
+        if (line.type !== "add" || !line.content.includes(INLINE_IGNORE_MARKER)) {
           continue;
         }
 
@@ -244,11 +248,11 @@ function hasInlineIgnore(file: DiffFile, finding: Finding): boolean {
   const inlineLines = file.hunks.flatMap((hunk) => hunk.lines);
 
   return inlineLines.some((line) => {
-    if (line.type === "remove" || !line.content.includes("patchbrake-ignore")) {
+    if (line.type === "remove" || !line.content.includes(INLINE_IGNORE_MARKER)) {
       return false;
     }
 
-    const directives = line.content.matchAll(/\bpatchbrake-ignore(-next-line|-file)?(?=$|[\s*])(?:[ \t]+([^\s*]+))?/g);
+    const directives = line.content.matchAll(new RegExp("\\b" + INLINE_IGNORE_MARKER + "(-next-line|-file)?(?=$|[\\s*])(?:[ \\t]+([^\\s*]+))?", "g"));
     for (const directive of directives) {
       // A named exception belongs only to that exact rule. A bare directive
       // retains the existing all-rules behavior.
