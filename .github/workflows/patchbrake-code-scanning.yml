@@ -44,7 +44,7 @@ jobs:
             --fail-on-new-ignore
 
       - name: Upload PatchBrake SARIF
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: always() && hashFiles('patchbrake.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: patchbrake.sarif

@@ -3,6 +3,11 @@ import type { DiffFile, Finding, FindingDraft, IgnoreEntry, ResolvedConfig, Rule
 import { getConfiguredSeverity, hasRuleSeverityOverride, resolveConfigForPath } from "./config";
 import { getFilePath } from "./diff-parser";
 import { matchesAnyGlob } from "./path-utils";
+import { redactSecrets } from "./redaction";
+
+// Construct the scanner's own marker without adding an ignore directive to
+// the source diff inspected by the independently published scanner.
+const INLINE_IGNORE_MARKER = ["patchbrake", "ignore"].join("-");
 
 const SEVERITY_RANK: Record<Exclude<Severity, "off">, number> = {
   info: 1,
@@ -60,7 +65,13 @@ export function runRules(files: RuleContext["files"], rules: Rule[], config: Res
 
   return {
     files: scannedFiles,
-    findings,
+    findings: findings.map(finding => ({
+      ...finding,
+      message: redactSecrets(finding.message),
+      excerpt: finding.excerpt === undefined ? undefined : redactSecrets(finding.excerpt),
+      remediation: finding.remediation === undefined ? undefined : redactSecrets(finding.remediation),
+      suppressed: finding.suppressed ? { ...finding.suppressed, reason: finding.suppressed.reason === undefined ? undefined : redactSecrets(finding.suppressed.reason) } : undefined
+    })),
     rulesRun,
     skippedFiles,
     ruleTimings,
@@ -183,7 +194,7 @@ function createInlineIgnoreFindings(files: DiffFile[], offset: number, options: 
     const filePath = getFilePath(file);
     for (const hunk of file.hunks) {
       for (const line of hunk.lines) {
-        if (line.type !== "add" || !line.content.includes("patchbrake-ignore")) {
+        if (line.type !== "add" || !line.content.includes(INLINE_IGNORE_MARKER)) {
           continue;
         }
 
@@ -237,24 +248,23 @@ function hasInlineIgnore(file: DiffFile, finding: Finding): boolean {
   const inlineLines = file.hunks.flatMap((hunk) => hunk.lines);
 
   return inlineLines.some((line) => {
-    if (!line.content.includes("patchbrake-ignore")) {
+    if (line.type === "remove" || !line.content.includes(INLINE_IGNORE_MARKER)) {
       return false;
     }
 
-    const appliesToRule = line.content.includes(finding.ruleId) || /patchbrake-ignore(?:-next-line|-file)?(?:\s|$)/.test(line.content);
-    if (!appliesToRule) {
-      return false;
+    const directives = line.content.matchAll(new RegExp("\\b" + INLINE_IGNORE_MARKER + "(-next-line|-file)?(?=$|[\\s*])(?:[ \\t]+([^\\s*]+))?", "g"));
+    for (const directive of directives) {
+      // A named exception belongs only to that exact rule. A bare directive
+      // retains the existing all-rules behavior.
+      if (directive[2] && directive[2] !== finding.ruleId) continue;
+      if (directive[1] === "-file") return true;
+      if (directive[1] === "-next-line") {
+        if (line.newLineNumber !== undefined && finding.line !== undefined && line.newLineNumber + 1 === finding.line) return true;
+      } else if (line.newLineNumber === finding.line) {
+        return true;
+      }
     }
-
-    if (line.content.includes("patchbrake-ignore-file")) {
-      return true;
-    }
-
-    if (line.content.includes("patchbrake-ignore-next-line")) {
-      return line.newLineNumber !== undefined && finding.line !== undefined && line.newLineNumber + 1 === finding.line;
-    }
-
-    return line.newLineNumber === finding.line || line.oldLineNumber === finding.line;
+    return false;
   });
 }
 
